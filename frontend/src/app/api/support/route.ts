@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: Request) {
@@ -24,7 +26,10 @@ export async function POST(req: Request) {
 
     // Save to Firestore
     const { db } = await import("@/lib/firebase-admin");
-    await db.collection("support_requests").add({
+    if (!db) {
+      return NextResponse.json({ error: "Firebase DB not initialized" }, { status: 500 });
+    }
+    await db!.collection("support_requests").add({
       product,
       category,
       message,
