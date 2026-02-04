@@ -22,18 +22,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // Forward to Python backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
-    const res = await fetch(`${backendUrl}/support`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
+    // Save to Firestore
+    const { db } = await import("@/lib/firebase-admin");
+    await db.collection("support_requests").add({
+      product,
+      category,
+      message,
+      user_email,
+      created_at: new Date().toISOString()
     });
 
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json({ status: "success", message: "Support request submitted." });
   } catch (error) {
     console.error("Support API Error:", error);
     return NextResponse.json(

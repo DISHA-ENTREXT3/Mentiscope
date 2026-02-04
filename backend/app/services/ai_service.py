@@ -237,24 +237,28 @@ async def analyze_assessment(db: AsyncSession, assessment_id: str):
         # 3. Save Action Items
         action_plan = analysis.get("action_plan", {})
         for act in action_plan.get("student_actions", []):
+            task_desc = act.get("task") if isinstance(act, dict) else str(act)
             db.add(ActionPlan(
                 student_id=student.id,
                 title="Student Action",
-                description=act,
+                description=task_desc,
                 role_target="student"
             ))
         for act in action_plan.get("parent_actions", []):
+            task_desc = act.get("task") if isinstance(act, dict) else str(act)
             db.add(ActionPlan(
                 student_id=student.id,
                 title="Parent Action",
-                description=act,
+                description=task_desc,
                 role_target="parent"
             ))
         for act in action_plan.get("environment_adjustments", []):
+            # Environment adjustments are often just strings or tasks
+            task_desc = act.get("task") if isinstance(act, dict) else str(act)
             db.add(ActionPlan(
                 student_id=student.id,
                 title="Environment Adjustment",
-                description=act,
+                description=task_desc,
                 role_target="parent" # Default to parent for environment
             ))
             

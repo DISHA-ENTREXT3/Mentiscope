@@ -20,8 +20,8 @@ export default function SignupPage() {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("User signed up:", result.user);
       router.push("/onboarding");
-    } catch (error: any) {
-      console.error("Error signing up:", error.message);
+    } catch (error: unknown) {
+      console.error("Error signing up:", error instanceof Error ? error.message : "Unknown error");
     } finally {
       setLoading(false);
     }

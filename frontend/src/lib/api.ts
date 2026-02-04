@@ -1,10 +1,6 @@
 import { Student } from "@/types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_BASE_URL) {
-  throw new Error("NEXT_PUBLIC_API_URL environment variable is not set. Please configure your API URL.");
-}
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export async function createStudent(data: { name: string, grade_level: string, parent_id: string, school_type?: string }): Promise<Student> {
   const response = await fetch(`${API_BASE_URL}/students/`, {

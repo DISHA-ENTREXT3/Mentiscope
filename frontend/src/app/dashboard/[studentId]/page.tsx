@@ -51,13 +51,6 @@ interface TrajectoryData {
   growth_driver: string;
 }
 
-interface AcademicIntelligence {
-  score: number;
-  learning_style: 'Visual' | 'Auditory' | 'Kinesthetic' | 'Mixed';
-  study_effectiveness: 'High' | 'Moderate' | 'Needs Improvement';
-  growth_mindset_level: 'Strong' | 'Developing' | 'Fixed';
-  recommendations: string[];
-}
 
 interface Strength {
   title: string;
@@ -89,6 +82,21 @@ interface ExplainabilityData {
   observation: string;
   why_it_matters: string;
   expected_impact: string;
+}
+
+interface AnalysisResults {
+  dashboard_summary?: string;
+  overall_growth_summary?: string;
+  confidence_level?: number;
+  perception_gap?: PerceptionGap;
+  trajectory?: TrajectoryData;
+  dimensions?: Dimension[];
+  strengths?: Strength[];
+  support_areas?: SupportArea[];
+  risks?: Risk[];
+  action_plan?: ActionPlanData;
+  communication_guidance?: CommGuidance;
+  explainability?: ExplainabilityData[];
 }
 
 export default function DashboardPage({ params }: { params: Promise<{ studentId: string }> }) {
@@ -166,7 +174,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
   );
 
   const latestAssessment = student.assessments?.[0];
-  const analysis = latestAssessment?.analysis_results || {};
+  const analysis = (latestAssessment?.analysis_results || {}) as AnalysisResults;
   
   const getTrendIcon = (trend: string) => {
     if (trend === 'up') return <TrendingUp className="w-4 h-4 text-emerald-400" />;
@@ -185,13 +193,6 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
   const confidenceLevel: number = analysis.confidence_level || 0;
   const synergy: PerceptionGap = analysis.perception_gap || { gap_score: 0, misalignment: "Awaiting data...", synergy_tip: "Complete all assessments for insights." };
   const trajectory: TrajectoryData = analysis.trajectory || { current: 0, projected_30d: 0, projected_90d: 0, growth_driver: "Consistency" };
-  const academicIntel: AcademicIntelligence = analysis.academic_intelligence || { 
-    score: 0, 
-    learning_style: "Mixed", 
-    study_effectiveness: "Moderate", 
-    growth_mindset_level: "Developing",
-    recommendations: ["Complete assessment for personalized insights"]
-  };
   const dimensions: Dimension[] = analysis.dimensions || [];
   const strengths: Strength[] = analysis.strengths || [];
   const supportAreas: SupportArea[] = analysis.support_areas || [];

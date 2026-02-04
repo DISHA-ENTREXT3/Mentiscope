@@ -14,6 +14,7 @@ class UserRole(str, enum.Enum):
     COUNSELOR = "counselor"
 
 class User(Base):
+    __tablename__ = "user"
     id = Column(String, primary_key=True, default=generate_uuid)
     email = Column(String, unique=True, index=True, nullable=False)
     # Supabase Auth ID linkage
@@ -31,6 +32,7 @@ class User(Base):
     students = relationship("Student", back_populates="parent")
 
 class Student(Base):
+    __tablename__ = "student"
     id = Column(String, primary_key=True, default=generate_uuid)
     parent_id = Column(String, ForeignKey("user.id"), nullable=False)
     name = Column(String, nullable=False) # Can be nickname for privacy

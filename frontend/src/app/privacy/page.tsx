@@ -21,12 +21,12 @@ export default function PrivacyPolicy() {
 
       <h2>3. Neural Privacy Standards</h2>
       <p>
-        Your data is strictly partitioned. We utilize enterprise-grade encryption for all student metrics. Mentiscope is fully COPPA compliant and never "labels" or "diagnoses" students; our intelligence is exclusively designed as supportive guidance for parents.
+        Your data is strictly partitioned. We utilize enterprise-grade encryption for all student metrics. Mentiscope is fully COPPA compliant and never &quot;labels&quot; or &quot;diagnoses&quot; students; our intelligence is exclusively designed as supportive guidance for parents.
       </p>
 
       <h2>4. Data Sovereignty</h2>
       <p>
-        You maintain total sovereignty over your child's growth architecture. You may request a data wipe or extract your intelligence cache at any baseline synchronization point.
+        You maintain total sovereignty over your child&apos;s growth architecture. You may request a data wipe or extract your intelligence cache at any baseline synchronization point.
       </p>
 
       <h2>5. Protocol Updates</h2>

@@ -1,3 +1,4 @@
+from fastapi import APIRouter
 from app.api.endpoints import assess_routes, student_routes, payment_routes, support_routes
 
 api_router = APIRouter()

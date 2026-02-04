@@ -1,0 +1,16 @@
+﻿
+D:\STUDY\student-growth-platform\frontend\src\app\dashboard\[studentId]\page.tsx
+  188:9  warning  'academicIntel' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\STUDY\student-growth-platform\frontend\src\app\dashboard\layout.tsx
+  11:34  warning  'AvatarImage' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\STUDY\student-growth-platform\frontend\src\app\privacy\page.tsx
+  24:154  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  24:161  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  24:166  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  24:176  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  29:55   error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+Γ£û 7 problems (5 errors, 2 warnings)
+

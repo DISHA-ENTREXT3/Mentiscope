@@ -1,17 +1,9 @@
 // Scientific References Display Component
 // Use this to show research backing for insights
 
+import React from "react";
 import { Info } from "lucide-react";
-
-interface ScientificReference {
-  title: string;
-  authors: string;
-  year: number;
-  journal: string;
-  doi: string;
-  summary: string;
-  relevance: string;
-}
+import { Insight, ScientificReference } from "@/types";
 
 interface ScientificReferencesProps {
   references: ScientificReference[];
@@ -104,8 +96,9 @@ import { ScientificReferences } from "@/components/scientific-references";
 </div>
 */
 
+
 // Example: Displaying in a collapsible section
-export function InsightWithReferences({ insight }: { insight: any }) {
+export function InsightWithReferences({ insight }: { insight: Insight }) {
   const [showReferences, setShowReferences] = React.useState(false);
 
   return (
@@ -130,7 +123,7 @@ export function InsightWithReferences({ insight }: { insight: any }) {
       </div>
 
       {/* Scientific References (Collapsible) */}
-      {showReferences && (
+      {showReferences && insight.scientific_references && (
         <ScientificReferences 
           references={insight.scientific_references}
           dimension={insight.dimension}

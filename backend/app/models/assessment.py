@@ -11,6 +11,7 @@ class AssessmentType(str, enum.Enum):
     AD_HOC = "ad_hoc"
 
 class Assessment(Base):
+    __tablename__ = "assessment"
     id = Column(String, primary_key=True, default=generate_uuid)
     student_id = Column(String, ForeignKey("student.id"), nullable=False)
     type = Column(String, default=AssessmentType.ONBOARDING)
@@ -31,6 +32,7 @@ class InsightType(str, enum.Enum):
     TREND = "trend"
 
 class Insight(Base):
+    __tablename__ = "insight"
     id = Column(String, primary_key=True, default=generate_uuid)
     student_id = Column(String, ForeignKey("student.id"), nullable=False)
     assessment_id = Column(String, ForeignKey("assessment.id"), nullable=True) # Can be derived from a specific assessment OR historical trends
@@ -53,6 +55,7 @@ class Insight(Base):
     action_items = relationship("ActionPlan", back_populates="insight")
 
 class ActionPlan(Base):
+    __tablename__ = "action_plan"
     id = Column(String, primary_key=True, default=generate_uuid)
     student_id = Column(String, ForeignKey("student.id"), nullable=False)
     insight_id = Column(String, ForeignKey("insight.id"), nullable=True)

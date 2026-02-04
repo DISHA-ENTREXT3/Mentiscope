@@ -18,8 +18,18 @@ export interface Assessment {
   id: string;
   type: string;
   data: Record<string, unknown>;
-  analysis_results: Record<string, any>;
+  analysis_results: Record<string, unknown>;
   created_at: string;
+}
+
+export interface ScientificReference {
+  title: string;
+  authors: string;
+  year: number;
+  journal: string;
+  doi: string;
+  summary: string;
+  relevance: string;
 }
 
 export interface Insight {
@@ -29,6 +39,8 @@ export interface Insight {
   observation: string;
   interpretation: string;
   confidence_score: number;
+  scientific_references?: ScientificReference[];
+  dimension?: string;
   created_at: string;
 }
 

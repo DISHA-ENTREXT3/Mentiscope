@@ -20,8 +20,8 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("User logged in:", result.user);
       router.push("/dashboard");
-    } catch (error: any) {
-      console.error("Error logging in:", error.message);
+    } catch (error: unknown) {
+      console.error("Error logging in:", error instanceof Error ? error.message : "Unknown error");
     } finally {
       setLoading(false);
     }
