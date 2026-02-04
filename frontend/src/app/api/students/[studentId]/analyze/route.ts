@@ -12,21 +12,26 @@ const client = new OpenAI({
   }
 });
 
+export const dynamic = "force-dynamic";
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ studentId: string }> }
 ) {
+  if (!db) {
+    return NextResponse.json({ error: "Firebase DB not initialized" }, { status: 500 });
+  }
   try {
     const { studentId } = await params;
 
     // 1. Fetch student and latest assessment
-    const studentDoc = await db.collection("students").doc(studentId).get();
+    const studentDoc = await db!.collection("students").doc(studentId).get();
     if (!studentDoc.exists) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
     const student = studentDoc.data();
 
-    const assessmentsSnapshot = await db
+    const assessmentsSnapshot = await db!
       .collection("assessments")
       .where("student_id", "==", studentId)
       .orderBy("created_at", "desc")
@@ -40,7 +45,7 @@ export async function POST(
     const assessment = assessmentDoc.data();
 
     // 2. Fetch historical context
-    const historySnapshot = await db
+    const historySnapshot = await db!
       .collection("assessments")
       .where("student_id", "==", studentId)
       .orderBy("created_at", "desc")
@@ -181,10 +186,10 @@ export async function POST(
     await studentDoc.ref.update({ readiness_score: analysis.readiness_score || student?.readiness_score });
 
     // Save Insights
-    const batch = db.batch();
+    const batch = db!.batch();
     
     // Summary
-    const summaryRef = db.collection("insights").doc();
+    const summaryRef = db!.collection("insights").doc();
     batch.set(summaryRef, {
       student_id: studentId,
       assessment_id: assessmentDoc.id,
@@ -198,7 +203,7 @@ export async function POST(
 
     // Strengths
     analysis.strengths?.forEach((s: { title: string; explanation: string }) => {
-      const ref = db.collection("insights").doc();
+      const ref = db!.collection("insights").doc();
       batch.set(ref, {
         student_id: studentId,
         assessment_id: assessmentDoc.id,
@@ -213,7 +218,7 @@ export async function POST(
 
     // Risks
     analysis.risks?.forEach((r: { name: string; observations: string; why_it_matters: string; urgency: string }) => {
-      const ref = db.collection("insights").doc();
+      const ref = db!.collection("insights").doc();
       batch.set(ref, {
         student_id: studentId,
         assessment_id: assessmentDoc.id,
@@ -228,7 +233,7 @@ export async function POST(
 
     // Action Items
     analysis.action_plan?.student_actions?.forEach((act: { task?: string } | string) => {
-      const ref = db.collection("action_plans").doc();
+      const ref = db!.collection("action_plans").doc();
       const description = typeof act === 'string' ? act : (act.task || "No description");
       batch.set(ref, {
         student_id: studentId,
@@ -241,7 +246,7 @@ export async function POST(
     });
 
     analysis.action_plan?.parent_actions?.forEach((act: { task?: string } | string) => {
-      const ref = db.collection("action_plans").doc();
+      const ref = db!.collection("action_plans").doc();
       const description = typeof act === 'string' ? act : (act.task || "No description");
       batch.set(ref, {
         student_id: studentId,
@@ -254,7 +259,7 @@ export async function POST(
     });
 
     analysis.action_plan?.environment_adjustments?.forEach((act: { task?: string } | string) => {
-      const ref = db.collection("action_plans").doc();
+      const ref = db!.collection("action_plans").doc();
       const description = typeof act === 'string' ? act : (act.task || "No description");
       batch.set(ref, {
         student_id: studentId,

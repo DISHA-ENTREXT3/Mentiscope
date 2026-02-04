@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebase-admin";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ studentId: string }> }
 ) {
+  if (!db) {
+    return NextResponse.json({ error: "Firebase DB not initialized" }, { status: 500 });
+  }
   try {
     const { studentId } = await params;
 
-    const studentDoc = await db.collection("students").doc(studentId).get();
+    const studentDoc = await db!.collection("students").doc(studentId).get();
     if (!studentDoc.exists) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
@@ -16,7 +21,7 @@ export async function GET(
     const studentData = studentDoc.data();
     
     // Fetch assessments
-    const assessmentsSnapshot = await db
+    const assessmentsSnapshot = await db!
       .collection("assessments")
       .where("student_id", "==", studentId)
       .orderBy("created_at", "desc")
@@ -28,7 +33,7 @@ export async function GET(
     }));
 
     // Fetch insights
-    const insightsSnapshot = await db
+    const insightsSnapshot = await db!
       .collection("insights")
       .where("student_id", "==", studentId)
       .orderBy("created_at", "desc")
@@ -40,7 +45,7 @@ export async function GET(
     }));
 
     // Fetch action plans
-    const actionPlansSnapshot = await db
+    const actionPlansSnapshot = await db!
       .collection("action_plans")
       .where("student_id", "==", studentId)
       .orderBy("created_at", "desc")

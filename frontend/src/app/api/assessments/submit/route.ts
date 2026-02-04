@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebase-admin";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ error: "Firebase DB not initialized" }, { status: 500 });
+  }
   try {
     const data = await req.json();
     const { student_id, assessment_type, data: assessmentData } = data;
@@ -10,7 +15,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const assessmentRef = db.collection("assessments").doc();
+    const assessmentRef = db!.collection("assessments").doc();
     const docData = {
       id: assessmentRef.id,
       student_id,
