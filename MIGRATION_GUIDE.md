@@ -23,7 +23,7 @@ This guide outlines the steps to move your backend from Firebase Cloud Functions
     - `PORT`: `5000` (or leave blank, Render provides one)
     - `NODE_ENV`: `production`
     - `OPENAI_API_KEY`: Your OpenAI API key.
-    - `FIREBASE_SERVICE_ACCOUNT`: Paste the **entire content** of the service account JSON file.
+    - `FIREBASE_PROJECT_ID`: Your Firebase Project ID (found in Firebase Settings).
     - `ALLOWED_ORIGINS`: `https://mentiscope.vercel.app` (comma separated if multiple)
 5.  Deploy the service. Note the **Service URL** (e.g., `https://mentiscope-backend.onrender.com`).
 

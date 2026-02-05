@@ -60,7 +60,8 @@ export async function getStudentDashboard(studentId: string): Promise<Student> {
   return { ...studentData, assessments } as unknown as Student;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = rawApiUrl?.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
 
 if (!API_URL && process.env.NODE_ENV === 'production') {
   console.error("NEXT_PUBLIC_API_URL is not defined in production environment.");
