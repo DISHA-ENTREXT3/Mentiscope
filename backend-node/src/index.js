@@ -11,22 +11,26 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Initialize Firebase Admin
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+const firebaseConfig = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+};
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT && process.env.FIREBASE_SERVICE_ACCOUNT.startsWith('{')) {
     try {
         const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount)
         });
-        console.log("Firebase Admin initialized successfully with Service Account.");
+        console.log("Firebase Admin initialized with Service Account Key.");
     } catch (error) {
-        console.error("FATAL ERROR: FIREBASE_SERVICE_ACCOUNT environment variable is not a valid JSON string.");
-        console.error("Current value starts with:", process.env.FIREBASE_SERVICE_ACCOUNT.substring(0, 50));
-        console.error("Please ensure you pasted the ENTIRE content of the service account JSON key file.");
-        process.exit(1);
+        console.error("Failed to parse Service Account JSON, falling back to default...");
+        admin.initializeApp(firebaseConfig);
     }
 } else {
-    console.warn("WARNING: FIREBASE_SERVICE_ACCOUNT not set. Standard credentials will be used.");
-    admin.initializeApp();
+    // If no key is allowed, initialize with Project ID
+    // This will use Google Application Default Credentials or standard project access
+    admin.initializeApp(firebaseConfig);
+    console.log(`Firebase Admin initialized with Project ID: ${firebaseConfig.projectId}. (Note: Full admin bypass may be limited)`);
 }
 
 const db = admin.firestore();
