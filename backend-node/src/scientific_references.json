@@ -1,0 +1,29 @@
+{
+  "learning_science": [
+    {
+      "title": "Visible Learning",
+      "authors": "John Hattie",
+      "year": 2008,
+      "key_finding": "Feedback and student self-assessment are among the highest impact factors on learning growth."
+    },
+    {
+      "title": "Mindset: The New Psychology of Success",
+      "authors": "Carol Dweck",
+      "year": 2006,
+      "key_finding": "Growth mindset intervention significantly improves academic trajectory in transitioning students."
+    },
+    {
+      "title": "The Science of Learning",
+      "authors": "Deans for Impact",
+      "year": 2015,
+      "key_finding": "Spaced repetition and dual coding improve long-term retention of complex concepts."
+    }
+  ],
+  "psychological_foundations": [
+    {
+      "name": "Self-Determination Theory",
+      "authors": "Deci & Ryan",
+      "focus": "Autonomy, Competence, and Relatedness as drivers of intrinsic motivation."
+    }
+  ]
+}
