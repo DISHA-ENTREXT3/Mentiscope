@@ -31,7 +31,7 @@ export async function submitAssessment(studentId: string, type: string, data: Re
   };
 }
 
-export async function createCheckoutSession() {
+export async function createCheckoutSession(_userId: string) {
   // For now, return a dummy link or mock functionality as Stripe requires backend
   console.log("Stripe integration requires a backend function. Skipping for Firebase-only client.");
   return { url: "#" };
