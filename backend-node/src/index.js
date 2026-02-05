@@ -128,8 +128,8 @@ function performStandardSynthesis(student, assessmentData) {
         },
         communication_guidance: {
             recommended_tone: "Encouraging & Analytical",
-            to_encourage: "Self-reflection and effort-based praise.",
-            to_avoid: "Focusing solely on numerical targets.",
+            to_encourage: ["Self-reflection", "Effort-based praise", "Curiosity"],
+            to_avoid: ["Numerical targets focus", "Comparison with peers"],
             frequency: "Daily Check-ins"
         },
         explainability: [

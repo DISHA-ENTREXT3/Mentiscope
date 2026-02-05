@@ -691,9 +691,9 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                  <div className="grid grid-cols-2 gap-8">
                     <div className="space-y-4">
                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Encourage</p>
-                       <ul className="space-y-2">
-                          {comms.to_encourage?.map((item: string, i: number) => (
-                            <li key={i} className="text-xs font-bold text-slate-400 flex items-start gap-2">
+                        <ul className="space-y-2">
+                           {Array.isArray(comms.to_encourage) && comms.to_encourage.map((item: string, i: number) => (
+                             <li key={i} className="text-xs font-bold text-slate-400 flex items-start gap-2">
                                <CheckCircle2 className="w-3 h-3 text-emerald-500 mt-0.5" /> {item}
                             </li>
                           ))}
@@ -701,9 +701,9 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                     </div>
                     <div className="space-y-4">
                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Avoid</p>
-                       <ul className="space-y-2">
-                          {comms.to_avoid?.map((item: string, i: number) => (
-                            <li key={i} className="text-xs font-bold text-slate-400 flex items-start gap-2">
+                        <ul className="space-y-2">
+                           {Array.isArray(comms.to_avoid) && comms.to_avoid.map((item: string, i: number) => (
+                             <li key={i} className="text-xs font-bold text-slate-400 flex items-start gap-2">
                                <AlertCircle className="w-3 h-3 text-rose-500 mt-0.5" /> {item}
                             </li>
                           ))}
