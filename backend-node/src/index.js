@@ -28,7 +28,7 @@ app.use(cors({
     credentials: true
 }));
 
-// Add COOP header to prevent browser warnings
+// Browser console warning fix
 app.use((req, res, next) => {
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     next();
@@ -47,8 +47,14 @@ try {
     console.error("Failed to load scientific references:", error);
 }
 
+// Initialize OpenAI client for OPENROUTER
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: process.env.OPENAI_API_KEY,
+    defaultHeaders: {
+        "HTTP-Referer": "https://mentiscope.vercel.app",
+        "X-Title": "Mentiscope",
+    }
 });
 
 const authenticate = async (req, res, next) => {
@@ -106,7 +112,7 @@ function fromFirestore(doc) {
     return obj;
 }
 
-app.get('/', (req, res) => res.json({ status: "Neural API Active", mode: "Self-Healing Production" }));
+app.get('/', (req, res) => res.json({ status: "Neural API Active", mode: "OpenRouter Synthesis" }));
 
 app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
     const { studentId } = req.body;
@@ -120,16 +126,12 @@ app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
 
         const ownerId = student.parent_id || student.userId || student.owner_id;
         
-        // SELF-HEALING LOGIC: 
-        // If the student has a "dummy-parent-id" or NO ID, we assume it's legacy data 
-        // and reassign it to the current user to REMOVE THE ERROR INSTANTLY.
+        // Self-heal identity
         if (!ownerId || ownerId === 'dummy-parent-id' || ownerId === 'undefined') {
-            console.log(`[SELF-HEALING] Reassigning student ${studentId} to user ${userId}`);
             await firestoreREST('PATCH', `students/${studentId}?updateMask.fieldPaths=parent_id`, {
                 fields: { parent_id: { stringValue: userId } }
             }, req.idToken);
         } else if (ownerId.trim() !== userId.trim()) {
-            // Only block if it strictly belongs to ANOTHER real user
             return res.status(403).json({ error: 'Permission Denied: Identity Misalignment' });
         }
 
@@ -156,11 +158,11 @@ app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
         const assessment = fromFirestore(latestDoc);
         const assessmentPath = latestDoc.name.split('/documents/')[1];
 
-        const prompt = `Synthesize JSON growth map for ${student.name}. Profile: ${JSON.stringify(student)}. Telemetry: ${JSON.stringify(assessment.data)}. Science: ${JSON.stringify(scientificRefs)}. Tone: Empathetic expert.`;
+        const prompt = `Synthesize JSON growth map. Student: ${student.name}. Telemetry: ${JSON.stringify(assessment.data)}. Science: ${JSON.stringify(scientificRefs)}. Response must be strictly VALID JSON.`;
 
         const completion = await openai.chat.completions.create({
-            messages: [{ role: "system", content: "Educational Psychologist. Return JSON." }, { role: "user", content: prompt }],
-            model: "gpt-4-turbo-preview",
+            messages: [{ role: "system", content: "Educational Psychologist logic. Valid JSON only." }, { role: "user", content: prompt }],
+            model: "openai/gpt-4-turbo", // OpenRouter Model Path
             response_format: { type: "json_object" },
         });
 
@@ -178,8 +180,8 @@ app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
         res.json({ status: "success", data: analysisResults });
 
     } catch (error) {
-        console.error("Neural Failure:", error.message);
-        res.status(500).json({ error: error.message });
+        console.error("OpenRouter Failure:", error.message);
+        res.status(500).json({ error: `Neural Engine Error: ${error.message}` });
     }
 });
 
@@ -210,4 +212,4 @@ app.post('/api/support', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`Self-Healing API active on ${PORT}`));
+app.listen(PORT, () => console.log(`OpenRouter Neural API active on ${PORT}`));
