@@ -86,6 +86,14 @@ const authenticate = async (req, res, next) => {
     }
 };
 
+app.get('/', (req, res) => {
+    res.json({ 
+        message: "Welcome to Mentiscope Neural Intelligence API", 
+        version: "1.0.0",
+        status: "active" 
+    });
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
