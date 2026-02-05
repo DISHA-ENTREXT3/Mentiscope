@@ -12,12 +12,20 @@ const PORT = process.env.PORT || 5000;
 
 // Initialize Firebase Admin
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
+    try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+        console.log("Firebase Admin initialized successfully with Service Account.");
+    } catch (error) {
+        console.error("FATAL ERROR: FIREBASE_SERVICE_ACCOUNT environment variable is not a valid JSON string.");
+        console.error("Current value starts with:", process.env.FIREBASE_SERVICE_ACCOUNT.substring(0, 50));
+        console.error("Please ensure you pasted the ENTIRE content of the service account JSON key file.");
+        process.exit(1);
+    }
 } else {
-    // For local development, if you have GOOGLE_APPLICATION_CREDENTIALS set
+    console.warn("WARNING: FIREBASE_SERVICE_ACCOUNT not set. Standard credentials will be used.");
     admin.initializeApp();
 }
 
