@@ -1,6 +1,5 @@
-import { db, functions } from "./firebase";
-import { collection, addDoc, doc, getDoc, updateDoc, setDoc, query, where, getDocs, Timestamp } from "firebase/firestore";
-import { httpsCallable } from "firebase/functions";
+import { db, auth } from "./firebase";
+import { collection, addDoc, doc, getDoc, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { Student } from "@/types";
 
 export async function createStudent(data: { name: string, grade_level: string, parent_id: string, school_type?: string }): Promise<Student> {
@@ -32,7 +31,7 @@ export async function submitAssessment(studentId: string, type: string, data: Re
   };
 }
 
-export async function createCheckoutSession(userId: string) {
+export async function createCheckoutSession() {
   // For now, return a dummy link or mock functionality as Stripe requires backend
   console.log("Stripe integration requires a backend function. Skipping for Firebase-only client.");
   return { url: "#" };
@@ -61,17 +60,42 @@ export async function getStudentDashboard(studentId: string): Promise<Student> {
   return { ...studentData, assessments } as unknown as Student;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_URL && process.env.NODE_ENV === 'production') {
+  console.error("NEXT_PUBLIC_API_URL is not defined in production environment.");
+}
+
 export async function triggerAnalysis(studentId: string): Promise<{ status: string, message: string }> {
   console.log(`Triggering Neural Analysis for student ${studentId}...`);
   
-  const triggerNeuralAnalysis = httpsCallable(functions, 'triggerNeuralAnalysis');
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("You must be logged in to trigger analysis.");
+  }
+
+  const idToken = await user.getIdToken();
   
   try {
-    const result = await triggerNeuralAnalysis({ studentId });
-    const data = result.data as { status: string, message: string };
+    const response = await fetch(`${API_URL}/api/triggerNeuralAnalysis`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
+      body: JSON.stringify({ studentId })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to trigger neural analysis protocol.");
+    }
+
+    const data = await response.json();
     return data;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Analysis Trigger Failed:", error);
-    throw new Error("Failed to trigger neural analysis protocol.");
+    const message = error instanceof Error ? error.message : "Failed to trigger neural analysis protocol.";
+    throw new Error(message);
   }
 }

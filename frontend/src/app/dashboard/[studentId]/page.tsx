@@ -25,6 +25,7 @@ interface Dimension {
   status: 'Strong' | 'Developing' | 'Needs Support';
   trend: 'up' | 'down' | 'stable';
   score: number;
+  scientific_backing?: string;
 }
 
 interface Action {
@@ -84,6 +85,13 @@ interface ExplainabilityData {
   expected_impact: string;
 }
 
+interface ScientificCitation {
+  title: string;
+  authors: string;
+  year: number;
+  relevance_to_child: string;
+}
+
 interface AnalysisResults {
   dashboard_summary?: string;
   overall_growth_summary?: string;
@@ -97,6 +105,7 @@ interface AnalysisResults {
   action_plan?: ActionPlanData;
   communication_guidance?: CommGuidance;
   explainability?: ExplainabilityData[];
+  scientific_references?: ScientificCitation[];
 }
 
 export default function DashboardPage({ params }: { params: Promise<{ studentId: string }> }) {
@@ -200,6 +209,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
   const actionPlan: ActionPlanData = analysis.action_plan || {};
   const comms: CommGuidance = analysis.communication_guidance || {};
   const explainability: ExplainabilityData[] = analysis.explainability || [];
+  const scientificCitations: ScientificCitation[] = analysis.scientific_references || [];
 
   const trajectoryChartData = [
     { name: 'Current', score: trajectory.current },
@@ -412,6 +422,13 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                             <span className="text-[10px] font-bold text-slate-500 uppercase">{dim.trend}</span>
                          </div>
                       </div>
+                      {/* Dimension Scientific Backing */}
+                      {dim.scientific_backing && (
+                         <div className="pt-2 flex items-start gap-2 max-w-[200px]">
+                            <Globe className="w-3 h-3 text-primary/40 shrink-0 mt-0.5" />
+                            <p className="text-[10px] text-slate-500 italic leading-tight">{dim.scientific_backing}</p>
+                         </div>
+                      )}
                    </div>
                    <div className="w-16 h-16 rounded-full border-4 border-white/5 flex items-center justify-center relative">
                       <svg className="absolute inset-0 w-full h-full -rotate-90">
@@ -678,10 +695,6 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                          <Sparkles className="w-4 h-4 text-primary/40" />
                       </div>
                       <div className="grid gap-4">
-                         <div className="bg-white/5 p-4 rounded-2xl space-y-2">
-                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Observation Origins</p>
-                            <p className="text-xs text-slate-400 italic">Across: {exp.inputs_matter?.join(", ")}</p>
-                         </div>
                          <p className="text-sm font-medium text-slate-300 leading-relaxed">{exp.observation}</p>
                          <p className="text-[11px] font-black text-accent uppercase tracking-widest leading-relaxed p-4 bg-accent/5 rounded-2xl border border-accent/10">
                             Reasoning: {exp.why_it_matters}
@@ -692,6 +705,26 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                       </div>
                    </div>
                  ))}
+                 
+                 {/* Scientific References Section */}
+                 {scientificCitations.length > 0 && (
+                   <div className="pt-8 space-y-6">
+                      <div className="flex items-center gap-3">
+                         <Shield className="w-5 h-5 text-emerald-400" />
+                         <h4 className="text-xl font-black text-white uppercase tracking-tighter">Scientific Foundation</h4>
+                      </div>
+                      <div className="space-y-4">
+                         {scientificCitations.map((cite, i) => (
+                           <div key={i} className="bg-emerald-500/5 border border-emerald-500/10 p-6 rounded-3xl space-y-3">
+                              <p className="text-[11px] font-black text-white uppercase leading-tight">{cite.title}</p>
+                              <p className="text-[10px] text-slate-500 font-bold uppercase">{cite.authors} ({cite.year})</p>
+                              <div className="h-px bg-emerald-500/10 w-full" />
+                              <p className="text-[10px] text-emerald-400/80 italic font-medium leading-relaxed">{cite.relevance_to_child}</p>
+                           </div>
+                         ))}
+                      </div>
+                   </div>
+                 )}
               </div>
            </Card>
         </div>
