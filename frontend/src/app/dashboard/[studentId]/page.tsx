@@ -233,10 +233,10 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-             <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-2 font-black text-[10px] tracking-[0.4em] uppercase">Intelligence Monitor Active</Badge>
+             <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-2 font-black text-[10px] tracking-[0.4em] uppercase">Standard Protocol Active</Badge>
              <div className="flex items-center gap-2 text-slate-500 font-bold text-[10px] uppercase tracking-widest">
                 <span className={`w-2 h-2 rounded-full ${(syncing || analyzing) ? 'bg-amber-400 animate-ping' : 'bg-primary animate-pulse'}`} />
-                {(syncing || analyzing) ? 'Processing Neural Signals...' : 'Live Protocol Enabled'}
+                {(syncing || analyzing) ? 'Synthesizing Telemetry...' : 'Standard Mapping Enabled'}
              </div>
           </div>
           <div className="space-y-2">
@@ -256,10 +256,11 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
           <Button 
             onClick={handleTriggerAnalysis}
             disabled={analyzing || syncing}
-            className="bg-primary text-black rounded-2xl px-12 h-20 text-lg font-black shadow-[0_0_50px_rgba(135,255,200,0.3)] transition-all hover:scale-105 active:scale-95 group"
+            className="bg-primary text-black rounded-2xl px-12 h-20 text-lg font-black shadow-[0_0_50px_rgba(135,255,200,0.3)] transition-all hover:scale-105 active:scale-95 group relative"
           >
             <Sparkles className="mr-3 w-6 h-6 group-hover:rotate-180 transition-all duration-700" />
-            Trigger Synthesis
+            Standard Synthesis
+            <div className="absolute -top-3 -right-3 bg-white text-[8px] px-2 py-1 rounded-full text-black font-bold tracking-tighter">FREE</div>
           </Button>
         </div>
       </div>
@@ -650,6 +651,27 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               </div>
            </div>
         </div>
+
+        {/* Premium AI Teaser (Innovative Monetization) */}
+        <Card className="lg:col-span-12 glass border-none rounded-[4rem] p-12 md:p-20 bg-linear-to-br from-indigo-500/10 via-background to-purple-500/5 relative overflow-hidden group border border-indigo-500/20">
+           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+           <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+              <div className="flex-1 space-y-6">
+                 <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30 px-4 py-1.5 font-black uppercase text-[10px] tracking-[0.4em]">Neural Protocol Upgrade</Badge>
+                 <h2 className="text-5xl font-black text-white uppercase tracking-tighter leading-[0.9]">Deep AI <br />Insights.</h2>
+                 <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-2xl">
+                    Unlock the full potential of our Neural Engine. Get personalized, psychology-backed observations and long-term trajectory mapping powered by advanced GPT-4 architectures.
+                 </p>
+                 <div className="flex gap-4 pt-4">
+                    <Button variant="outline" className="h-16 px-10 rounded-2xl border-indigo-500/30 text-indigo-300 font-black uppercase text-xs tracking-widest hover:bg-indigo-500/10">Join the Waitlist</Button>
+                 </div>
+              </div>
+              <div className="w-64 h-64 bg-white/5 rounded-full border border-white/10 flex items-center justify-center relative">
+                 <div className="absolute inset-0 bg-indigo-500/10 animate-pulse rounded-full" />
+                 <Sparkles className="w-20 h-20 text-indigo-400 animate-bounce" />
+              </div>
+           </div>
+        </Card>
 
         {/* Support Layers Grid */}
         <div className="lg:col-span-8 grid md:grid-cols-2 gap-10">
