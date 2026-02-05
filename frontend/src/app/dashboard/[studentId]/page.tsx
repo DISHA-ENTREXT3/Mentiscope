@@ -152,7 +152,12 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
   const handleUpgrade = async () => {
     if (!student) return;
     try {
-      const { url } = await createCheckoutSession(student.parent_id);
+      // Pass required parameters: productId, planName, price
+      const { url } = await createCheckoutSession(
+        student.parent_id, 
+        "Premium Plan", 
+        "29.99"
+      );
       window.location.href = url;
     } catch (err) {
       console.error("Upgrade failed:", err);
