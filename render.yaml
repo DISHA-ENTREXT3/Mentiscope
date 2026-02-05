@@ -1,0 +1,28 @@
+# Render.com deployment configuration for backend
+services:
+  - type: web
+    name: mentiscope-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd backend-node && npm install
+    startCommand: cd backend-node && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: DODO_PAYMENTS_API_KEY
+        sync: false
+      - key: DODO_PAYMENTS_ENDPOINT
+        value: https://sandbox.dodopayments.com
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: http://localhost:3000,https://mentiscope.vercel.app
