@@ -137,8 +137,8 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
   const handleUpgrade = async () => {
     if (!student) return;
     try {
-      const { checkout_url } = await createCheckoutSession(student.parent_id);
-      window.location.href = checkout_url;
+      const { url } = await createCheckoutSession(student.parent_id);
+      window.location.href = url;
     } catch (err) {
       console.error("Upgrade failed:", err);
       alert("Neural sync protocol failed to initialize.");
