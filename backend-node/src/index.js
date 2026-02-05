@@ -1,37 +1,20 @@
 const express = require('express');
 const cors = require('cors');
-const admin = require('firebase-admin');
 const OpenAI = require('openai');
 const fs = require('fs');
 const path = require('path');
 const morgan = require('morgan');
+const { createRemoteJWKSet, jwtVerify } = require('jose');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
 
-// Initialize Firebase Admin for AUTH ONLY (No key needed for verification!)
-if (!admin.apps.length) {
-    admin.initializeApp({
-        projectId: PROJECT_ID
-    });
-}
+// Auth token verification keys
+const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
-
-// Load scientific references
-const scientificRefsPath = path.join(__dirname, "scientific_references.json");
-let scientificRefs = {};
-try {
-    scientificRefs = JSON.parse(fs.readFileSync(scientificRefsPath, "utf8"));
-} catch (error) {
-    console.error("Failed to load scientific references:", error);
-}
-
-// Middleware
+// Dynamic CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',') 
     : ['http://localhost:3000', 'https://mentiscope.vercel.app'];
@@ -50,86 +33,228 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-// Helper for Firestore REST API (Works as the logged-in user!)
-async function firestoreREST(method, documentPath, data, idToken) {
-    const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${documentPath}`;
-    
-    // Convert regular JSON to Firestore's "Weighted" REST format for certain fields
-    // This is a simplified version for our specific needs
-    const body = data ? JSON.stringify({
-        fields: Object.entries(data).reduce((acc, [key, val]) => {
-            if (typeof val === 'string') acc[key] = { stringValue: val };
-            else if (typeof val === 'number') acc[key] = { doubleValue: val };
-            else if (typeof val === 'boolean') acc[key] = { booleanValue: val };
-            else if (typeof val === 'object') acc[key] = { stringValue: JSON.stringify(val) }; // Store complex as string for simplicity
-            return acc;
-        }, {})
-    }) : null;
+// Load scientific foundations
+const scientificRefsPath = path.join(__dirname, "scientific_references.json");
+let scientificRefs = {};
+try {
+    scientificRefs = JSON.parse(fs.readFileSync(scientificRefsPath, "utf8"));
+} catch (error) {
+    console.error("Failed to load scientific references:", error);
+}
 
-    const res = await fetch(url, {
+// OpenAI Client
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
+/**
+ * Keyless Verification Middleware
+ * Authenticates users via Google public keys
+ */
+const authenticate = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthenticated' });
+    }
+
+    const idToken = authHeader.split('Bearer ')[1];
+    try {
+        const { payload } = await jwtVerify(idToken, JWKS, {
+            issuer: `https://securetoken.google.com/${PROJECT_ID}`,
+            audience: PROJECT_ID,
+        });
+        req.user = payload;
+        req.idToken = idToken; 
+        next();
+    } catch (error) {
+        console.error('Auth Error:', error.message);
+        res.status(401).json({ error: 'Invalid security protocol' });
+    }
+};
+
+/**
+ * Helper: Firestore REST API Integration
+ */
+async function firestoreREST(method, path, data = null, idToken) {
+    const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${path}`;
+    const options = {
         method,
         headers: {
             'Authorization': `Bearer ${idToken}`,
             'Content-Type': 'application/json'
-        },
-        body
-    });
-
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error?.message || 'Firestore API Error');
+        }
+    };
+    if (data) options.body = JSON.stringify(data);
+    
+    const response = await fetch(url, options);
+    if (!response.ok) {
+        const err = await response.json();
+        console.error(`Firestore [${method}] Error:`, err);
+        throw new Error(err.error?.message || 'Firestore Protocol Failure');
     }
-    return await res.json();
+    return await response.json();
 }
 
-app.get('/', (req, res) => res.json({ status: "Neural API Live", mode: "Organization-Safe" }));
+/**
+ * Utility: Flatten Firestore REST response to clean JSON
+ */
+function fromFirestore(doc) {
+    if (!doc.fields) return doc;
+    const obj = { id: doc.name?.split('/').pop() };
+    for (const [key, value] of Object.entries(doc.fields)) {
+        if (value.stringValue !== undefined) obj[key] = value.stringValue;
+        else if (value.integerValue !== undefined) obj[key] = parseInt(value.integerValue);
+        else if (value.doubleValue !== undefined) obj[key] = parseFloat(value.doubleValue);
+        else if (value.booleanValue !== undefined) obj[key] = value.booleanValue;
+        else if (value.mapValue !== undefined) obj[key] = fromFirestore(value.mapValue);
+        else if (value.arrayValue !== undefined) obj[key] = (value.arrayValue.values || []).map(v => Object.values(v)[0]);
+        else if (value.timestampValue !== undefined) obj[key] = value.timestampValue;
+    }
+    return obj;
+}
 
-app.post('/api/triggerNeuralAnalysis', async (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthenticated' });
-    
-    const idToken = authHeader.split('Bearer ')[1];
+app.get('/', (req, res) => res.json({ status: "Neural API Active", mode: "Compliance-Safe Proxy" }));
+
+app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
     const { studentId } = req.body;
+    const userId = req.user.user_id || req.user.sub || req.user.uid;
+
+    if (!studentId) return res.status(400).json({ error: "Missing student ID" });
 
     try {
-        // 1. Verify user identity
-        const decodedToken = await admin.auth().verifyIdToken(idToken);
-        const userId = decodedToken.uid;
+        console.log(`Analyzing Student: ${studentId} for User: ${userId}`);
 
-        // 2. Fetch Data via REST API (Inherits user permissions!)
-        const studentRaw = await firestoreREST('GET', `students/${studentId}`, null, idToken);
+        // 1. Fetch Student Identity
+        const studentRaw = await firestoreREST('GET', `students/${studentId}`, null, req.idToken);
+        const student = fromFirestore(studentRaw);
+
+        // Security Validation (Ownership check)
+        // We check 'parent_id', 'userId', or 'owner_id' to be flexible
+        const ownerId = student.parent_id || student.userId || student.owner_id;
         
-        // Simple extraction
-        const student = {
-            name: studentRaw.fields.name?.stringValue,
-            grade_level: studentRaw.fields.grade_level?.stringValue,
-            parent_id: studentRaw.fields.parent_id?.stringValue
+        if (ownerId && ownerId !== userId) {
+            console.error(`Permission Denied: Document owner ${ownerId} does not match request user ${userId}`);
+            return res.status(403).json({ error: 'Permission Denied: Hierarchy Misalignment' });
+        }
+
+        // 2. Fetch Latest Assessment Data via Query
+        const queryUrl = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery`;
+        const queryBody = {
+            structuredQuery: {
+                from: [{ collectionId: 'assessments' }],
+                where: {
+                    fieldFilter: {
+                        field: { fieldPath: 'student_id' },
+                        op: 'EQUAL',
+                        value: { stringValue: studentId }
+                    }
+                },
+                orderBy: [{ field: { fieldPath: 'created_at' }, direction: 'DESCENDING' }],
+                limit: 1
+            }
         };
 
-        if (student.parent_id !== userId) return res.status(403).json({ error: 'Permission Denied' });
+        const qRes = await fetch(queryUrl, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${req.idToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(queryBody)
+        });
 
-        // 3. OpenAI Synthesis
-        const prompt = `Student: ${student.name}, Grade: ${student.grade_level}. Analyze progress. Return JSON.`;
+        const qData = await qRes.json();
+        const latestDoc = qData[0]?.document;
         
+        if (!latestDoc) return res.status(400).json({ error: "No synthesis telemetry found for this student." });
+        
+        const assessment = fromFirestore(latestDoc);
+        const assessmentPath = latestDoc.name.split('/documents/')[1];
+
+        // 3. Neural Synthesis (OpenAI Logic)
+        const prompt = `
+            You are Mentiscope Neural Engine. 
+            Student: ${JSON.stringify(student)}
+            Assessment: ${JSON.stringify(assessment.data)}
+            Foundations: ${JSON.stringify(scientificRefs)}
+            
+            Synthesize a JSON growth map with:
+            - dashboard_summary (1 line)
+            - overall_growth_summary (2 lines)
+            - confidence_level (80-100)
+            - perception_gap (score, misalignment, synergy_tip)
+            - trajectory (current, projected_30d, projected_90d, growth_driver)
+            - dimensions (name, status, trend, score, scientific_backing)
+            - strengths (title, explanation)
+            - support_areas (title, explanation)
+            - risks (name, observations, why_it_matters, urgency)
+            - action_plan (student_actions, parent_actions, environment_adjustments)
+            - communication_guidance (recommended_tone, to_encourage, to_avoid, frequency)
+            - explainability (insight, observation, why_it_matters, expected_impact)
+            - scientific_references (title, authors, year, relevance_to_child)
+        `;
+
         const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
+            messages: [{ role: "system", content: "You are a professional educational psychologist and neural data analyst. Return strictly valid JSON." }, { role: "user", content: prompt }],
             model: "gpt-4-turbo-preview",
             response_format: { type: "json_object" },
+            temperature: 0.7
         });
 
         const analysisResults = JSON.parse(completion.choices[0].message.content);
 
         // 4. Update Database
-        // Note: For REST PATCH to work, we point to the assessments sub-collection
-        // For this demo, let's assume we update a flag on the student or similar
-        // if you have a specific assessmentId, replace it here.
-        
-        res.json({ status: "success", data: analysisResults });
+        // We use a simplified PATCH that replaces the analysis_results field
+        await firestoreREST('PATCH', assessmentPath, {
+            fields: {
+                ...latestDoc.fields,
+                analysis_results: { stringValue: JSON.stringify(analysisResults) },
+                status: { stringValue: 'analyzed' },
+                analyzed_at: { timestampValue: new Date().toISOString() }
+            }
+        }, req.idToken);
+
+        res.json({
+            status: "success",
+            message: "Neural Synthesis Protocol Complete",
+            data: analysisResults
+        });
 
     } catch (error) {
-        console.error("Neural Error:", error.message);
+        console.error("Neural Failure:", error.message);
         res.status(500).json({ error: error.message });
     }
 });
 
-app.listen(PORT, () => console.log(`Secure Backend running on ${PORT}`));
+/**
+ * Health Check Protocol
+ */
+app.get('/health', (req, res) => {
+    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
+/**
+ * Public Support Uplink
+ */
+app.post('/api/support', async (req, res) => {
+    const { product, category, message, user_email } = req.body;
+    try {
+        const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/support_requests`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fields: {
+                    product: { stringValue: product || "Mentiscope" },
+                    category: { stringValue: category || "General" },
+                    message: { stringValue: message },
+                    user_email: { stringValue: user_email },
+                    created_at: { timestampValue: new Date().toISOString() }
+                }
+            })
+        });
+        res.json({ status: "success", message: "Support ticket generated." });
+    } catch (error) {
+        console.error("Support Error:", error.message);
+        res.status(500).json({ error: "Failed to route support ticket." });
+    }
+});
+
+app.listen(PORT, () => console.log(`Neural Intel Backend active on ${PORT}`));

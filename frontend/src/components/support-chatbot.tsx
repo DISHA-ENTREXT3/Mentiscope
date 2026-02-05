@@ -95,7 +95,8 @@ export function SupportChatbot() {
     try {
       const transcript = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n");
       
-      const res = await fetch("/api/support", {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const res = await fetch(`${baseUrl}/api/support`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

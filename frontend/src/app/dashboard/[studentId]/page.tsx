@@ -183,7 +183,16 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
   );
 
   const latestAssessment = student.assessments?.[0];
-  const analysis = (latestAssessment?.analysis_results || {}) as AnalysisResults;
+  let analysis = (latestAssessment?.analysis_results || {}) as AnalysisResults | string;
+  
+  if (typeof analysis === 'string') {
+    try {
+      analysis = JSON.parse(analysis) as AnalysisResults;
+    } catch (e) {
+      console.error("Failed to parse neural synthesis results:", e);
+      analysis = {} as AnalysisResults;
+    }
+  }
   
   const getTrendIcon = (trend: string) => {
     if (trend === 'up') return <TrendingUp className="w-4 h-4 text-emerald-400" />;
@@ -271,8 +280,8 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                  </div>
               </div>
 
-              <div className="h-64 mt-8">
-                 <ResponsiveContainer width="100%" height="100%">
+              <div className="h-[300px] mt-8 min-h-[300px]">
+                 <ResponsiveContainer width="100%" height="100%" minHeight={300}>
                     <AreaChart data={trajectoryChartData}>
                        <defs>
                           <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
@@ -280,7 +289,15 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                              <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
                           </linearGradient>
                        </defs>
-                       <Area type="monotone" dataKey="score" stroke="var(--primary)" strokeWidth={4} fillOpacity={1} fill="url(#colorScore)" />
+                       <Area 
+                         type="monotone" 
+                         dataKey="score" 
+                         stroke="var(--primary)" 
+                         strokeWidth={4} 
+                         fillOpacity={1} 
+                         fill="url(#colorScore)" 
+                         animationDuration={2000}
+                       />
                        <XAxis dataKey="name" hide />
                        <YAxis hide domain={[0, 100]} />
                        <Tooltip 
@@ -449,8 +466,8 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Processor <br />Balance.</h3>
            </div>
            
-           <div className="flex-1 flex items-center justify-center bg-white/5 rounded-[3.5rem] border border-white/5 relative p-4">
-              <ResponsiveContainer width="100%" height={320}>
+           <div className="flex-1 flex items-center justify-center bg-white/5 rounded-[3.5rem] border border-white/5 relative p-4 min-h-[350px]">
+              <ResponsiveContainer width="100%" height={320} minHeight={320}>
                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={dimensions.map((d: Dimension) => ({ subject: d.name.split(' ')[0], A: d.score }))}>
                     <PolarGrid stroke="rgba(255,255,255,0.05)" />
                     <PolarAngleAxis dataKey="subject" stroke="#666" fontSize={9} fontWeight="black" />

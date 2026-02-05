@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardRedirect() {
@@ -16,21 +17,14 @@ export default function DashboardRedirect() {
         return;
       }
 
-      // In a real app, you would fetch students from your backend
-      // For now, we'll try to find any student associated with this user
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        if (!baseUrl) {
-          console.error("API URL not configured");
-          router.push("/onboarding");
-          return;
-        }
+        const studentsRef = collection(db, "students");
+        const q = query(studentsRef, where("parent_id", "==", user.uid));
+        const querySnapshot = await getDocs(q);
         
-        const response = await fetch(`${baseUrl}/students?parent_id=${user.uid}`);
-        const students = await response.json();
-        
-        if (students && students.length > 0) {
-          router.push(`/dashboard/${students[0].id}`);
+        if (!querySnapshot.empty) {
+          const firstStudent = querySnapshot.docs[0];
+          router.push(`/dashboard/${firstStudent.id}`);
         } else {
           router.push("/onboarding");
         }
