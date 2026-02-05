@@ -11,8 +11,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
 
+// Auth token verification keys
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
 
+// Dynamic CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',') 
     : ['http://localhost:3000', 'https://mentiscope.vercel.app'];
@@ -37,18 +39,20 @@ let scientificRefs = {};
 try {
     if (fs.existsSync(scientificRefsPath)) {
         scientificRefs = JSON.parse(fs.readFileSync(scientificRefsPath, "utf8"));
-        console.log("Scientific foundations loaded successfully.");
-    } else {
-        console.warn("WARNING: scientific_references.json not found at", scientificRefsPath);
     }
 } catch (error) {
-    console.error("Failed to load scientific references:", error.message);
+    console.error("Failed to load scientific references:", error);
 }
 
+// OpenAI Client
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
+/**
+ * Keyless Verification Middleware
+ * Authenticates users via Google public keys
+ */
 const authenticate = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -70,6 +74,9 @@ const authenticate = async (req, res, next) => {
     }
 };
 
+/**
+ * Helper: Firestore REST API Integration
+ */
 async function firestoreREST(method, path, data = null, idToken) {
     const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${path}`;
     const options = {
@@ -82,13 +89,17 @@ async function firestoreREST(method, path, data = null, idToken) {
     if (data) options.body = JSON.stringify(data);
     
     const response = await fetch(url, options);
+    const result = await response.json();
     if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || 'Firestore Protocol Failure');
+        console.error(`Firestore Error [${method} ${path}]:`, result);
+        throw new Error(result.error?.message || 'Firestore Protocol Failure');
     }
-    return await response.json();
+    return result;
 }
 
+/**
+ * Utility: Flatten Firestore REST response to clean JSON
+ */
 function fromFirestore(doc) {
     if (!doc.fields) return doc;
     const obj = { id: doc.name?.split('/').pop() };
@@ -98,37 +109,41 @@ function fromFirestore(doc) {
         else if (value.doubleValue !== undefined) obj[key] = parseFloat(value.doubleValue);
         else if (value.booleanValue !== undefined) obj[key] = value.booleanValue;
         else if (value.mapValue !== undefined) obj[key] = fromFirestore(value.mapValue);
-        else if (value.arrayValue !== undefined) obj[key] = (value.arrayValue.values || []).map(v => Object.values(v)[0]);
+        else if (value.arrayValue !== undefined) obj[key] = (value.arrayValue.values || []).map(v => {
+            if (typeof v === 'object' && v !== null) {
+                return Object.values(v)[0];
+            }
+            return v;
+        });
         else if (value.timestampValue !== undefined) obj[key] = value.timestampValue;
     }
     return obj;
 }
 
-app.get('/', (req, res) => res.json({ status: "Neural API Active", mode: "Compliance-Safe Proxy" }));
+app.get('/', (req, res) => res.json({ status: "Neural API Active", mode: "Live Production" }));
 
+/**
+ * Trigger Neural Analysis Protocol
+ * Creates fresh analysis based on assessment data
+ */
 app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
     const { studentId } = req.body;
     const userId = req.user.user_id || req.user.sub || req.user.uid;
 
-    if (!studentId) return res.status(400).json({ error: "Missing identity" });
+    if (!studentId) return res.status(400).json({ error: "Student ID required" });
 
     try {
+        // 1. Fetch Student and Verify Ownership
         const studentRaw = await firestoreREST('GET', `students/${studentId}`, null, req.idToken);
         const student = fromFirestore(studentRaw);
 
+        // STRICT OWNERSHIP CHECK
         const ownerId = student.parent_id || student.userId || student.owner_id;
-        
-        console.log(`[NEURAL HEARTBEAT] Request for: ${studentId} | Owner: ${ownerId} | User: ${userId}`);
-
-        // Robust comparison: Allow if user is owner OR if student has dummy ID (facilitates testing)
-        const isOwner = ownerId && ownerId.trim() === userId.trim();
-        const isDummy = ownerId === 'dummy-parent-id';
-
-        if (!isOwner && !isDummy) {
-            console.warn(`[SECURITY] Blocked access attempt: User ${userId} tried to access Student ${studentId} owned by ${ownerId}`);
-            return res.status(403).json({ error: 'Permission Denied: Hierarchy Misalignment' });
+        if (!ownerId || ownerId.trim() !== userId.trim()) {
+            return res.status(403).json({ error: 'Permission Denied: Identity Misalignment' });
         }
 
+        // 2. Fetch Latest Assessment Data
         const queryUrl = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery`;
         const qRes = await fetch(queryUrl, {
             method: 'POST',
@@ -136,25 +151,50 @@ app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
             body: JSON.stringify({
                 structuredQuery: {
                     from: [{ collectionId: 'assessments' }],
-                    where: { fieldFilter: { field: { fieldPath: 'student_id' }, op: 'EQUAL', value: { stringValue: studentId } } },
-                    orderBy: [{ field: { fieldPath: 'created_at' }, direction: 'DESCENDING' }],
+                    where: { 
+                        fieldFilter: { 
+                            field: { fieldPath: 'student_id' }, 
+                            op: 'EQUAL', 
+                            value: { stringValue: studentId } 
+                        } 
+                    },
                     limit: 1
                 }
             })
         });
 
         const qData = await qRes.json();
-        const latestDoc = qData[0]?.document;
-        if (!latestDoc) return res.status(400).json({ error: "No synthesis telemetry found." });
+        const latestDoc = Array.isArray(qData) && qData[0]?.document ? qData[0].document : null;
+        
+        if (!latestDoc) {
+            return res.status(400).json({ error: "No synthesis telemetry found. Please complete an assessment first." });
+        }
         
         const assessment = fromFirestore(latestDoc);
         const assessmentPath = latestDoc.name.split('/documents/')[1];
 
-        const prompt = `Synthesize JSON growth map for ${student.name}. Data: ${JSON.stringify(assessment.data)}. Use refs: ${JSON.stringify(scientificRefs)}. Result must be valid JSON in requested schema.`;
+        // 3. Neural Synthesis (OpenAI Logic)
+        const prompt = `
+            You are Mentiscope's Neural Synthesis Engine.
+            Synthesize a fresh, detailed growth analysis based on this live telemetry.
+            
+            STUDENT PROFILE: ${JSON.stringify(student)}
+            LATEST ASSESSMENT DATA: ${JSON.stringify(assessment.data)}
+            SCIENTIFIC FOUNDATIONS: ${JSON.stringify(scientificRefs)}
+            
+            Return a JSON object exactly matching the dashboard schema, providing deep insights into:
+            - overall growth trajectory
+            - perception gaps between parent and student (if available in assessment data)
+            - dimension-specific scores (8 domains)
+            - actionable leverage points and support areas
+            - communication guidance for the parent
+            
+            Ensure the tone is scientific yet supportive.
+        `;
 
         const completion = await openai.chat.completions.create({
             messages: [
-                { role: "system", content: "You are Mentiscope's Neural Synthesis Engine. Return ONLY valid JSON matching the dashboard schema." },
+                { role: "system", content: "You are a professional educational psychologist. Return strictly valid JSON." },
                 { role: "user", content: prompt }
             ],
             model: "gpt-4-turbo-preview",
@@ -162,18 +202,23 @@ app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
             temperature: 0.7
         });
 
-        const results = JSON.parse(completion.choices[0].message.content);
+        const analysisResults = JSON.parse(completion.choices[0].message.content);
 
+        // 4. Update Database via PATCH
         await firestoreREST('PATCH', assessmentPath, {
             fields: {
                 ...latestDoc.fields,
-                analysis_results: { stringValue: JSON.stringify(results) },
+                analysis_results: { stringValue: JSON.stringify(analysisResults) },
                 status: { stringValue: 'analyzed' },
                 analyzed_at: { timestampValue: new Date().toISOString() }
             }
         }, req.idToken);
 
-        res.json({ status: "success", data: results });
+        res.json({ 
+            status: "success", 
+            message: "Neural Analysis Synthesis Complete",
+            data: analysisResults 
+        });
 
     } catch (error) {
         console.error("Neural Failure:", error.message);
@@ -181,4 +226,31 @@ app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`Neural Intel Backend active on ${PORT}`));
+/**
+ * Public Support Uplink
+ */
+app.post('/api/support', async (req, res) => {
+    const { product, category, message, user_email } = req.body;
+    try {
+        const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/support_requests`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fields: {
+                    product: { stringValue: product || "Mentiscope" },
+                    category: { stringValue: category || "General" },
+                    message: { stringValue: message },
+                    user_email: { stringValue: user_email },
+                    created_at: { timestampValue: new Date().toISOString() }
+                }
+            })
+        });
+        res.json({ status: "success", message: "Support ticket generated." });
+    } catch (error) {
+        console.error("Support Error:", error.message);
+        res.status(500).json({ error: "Failed to route support ticket." });
+    }
+});
+
+app.listen(PORT, () => console.log(`Live Neural API active on ${PORT}`));
