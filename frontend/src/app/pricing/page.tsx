@@ -5,12 +5,15 @@ import { Check, Activity, ShieldCheck, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { createCheckoutSession } from "@/lib/api";
+import { useState } from "react";
 
 export default function PricingPage() {
   const plans = [
     {
       name: "Standard Protocol",
       price: "$29",
+      productId: "p_standard_29", // Placeholder Dodo Product ID
       desc: "Essential growth tracking for proactive parents.",
       features: [
         "Core Neural Mapping",
@@ -26,6 +29,7 @@ export default function PricingPage() {
     {
       name: "Elite Architecture",
       price: "$89",
+      productId: "p_elite_89", // Placeholder Dodo Product ID
       desc: "Microscopic predictive intelligence for high-potential students.",
       features: [
         "All Standard Features",
@@ -42,6 +46,7 @@ export default function PricingPage() {
     {
       name: "Quantum System",
       price: "Custom",
+      productId: null,
       desc: "Bespoke monitoring for institutions and luxury family offices.",
       features: [
         "Fleet Neural Management",
@@ -56,6 +61,31 @@ export default function PricingPage() {
       popular: false
     }
   ];
+
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const handleCheckout = async (plan: typeof plans[0]) => {
+    if (!plan.productId) {
+      window.location.href = "mailto:ops@mentiscope.com?subject=Mentiscope Quantum System Inquiry";
+      return;
+    }
+
+    setLoading(plan.name);
+    try {
+      const { url } = await createCheckoutSession(plan.productId, plan.name, plan.price);
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error("Missing checkout URL");
+      }
+    } catch (error: unknown) {
+      console.error("Checkout failed:", error);
+      const message = error instanceof Error ? error.message : "Failed to initialize payment. Please try again.";
+      alert(message);
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 py-40">
@@ -116,8 +146,12 @@ export default function PricingPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <Button className={`${plan.popular ? 'bg-primary text-black' : 'bg-white/5 text-white'} w-full h-24 rounded-[2.5rem] text-xl font-black transition-all hover:scale-105 active:scale-95 shadow-xl`}>
-                    {plan.cta}
+                  <Button 
+                    disabled={!!loading}
+                    onClick={() => handleCheckout(plan)}
+                    className={`${plan.popular ? 'bg-primary text-black' : 'bg-white/5 text-white'} w-full h-24 rounded-[2.5rem] text-xl font-black transition-all hover:scale-105 active:scale-95 shadow-xl`}
+                  >
+                    {loading === plan.name ? "Synchronizing..." : plan.cta}
                   </Button>
                   {plan.price !== "Custom" && (
                     <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-widest">

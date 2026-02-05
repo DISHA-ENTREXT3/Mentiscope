@@ -2,6 +2,7 @@
 
 import OnboardingForm from "@/components/onboarding-form";
 import { motion } from "framer-motion";
+import { BackButton } from "@/components/back-button";
 
 export default function OnboardingPage() {
   return (
@@ -10,6 +11,10 @@ export default function OnboardingPage() {
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-full h-full bg-primary/5 rounded-full blur-[150px]" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[80%] h-[80%] bg-accent/5 rounded-full blur-[180px]" />
+      </div>
+
+      <div className="absolute top-12 left-12 z-50">
+        <BackButton />
       </div>
 
       <div className="w-full max-w-5xl z-10 relative">

@@ -12,6 +12,7 @@
     "@types/recharts": "^1.8.29",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dodopayments": "^2.18.0",
     "firebase": "^11.10.0",
     "firebase-admin": "^13.6.1",
     "framer-motion": "^12.30.1",

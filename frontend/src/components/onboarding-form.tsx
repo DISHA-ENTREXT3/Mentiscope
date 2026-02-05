@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -13,18 +13,28 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Loader2, Moon, Monitor, Activity, 
   Brain, Users, Zap, 
-  ChevronRight
+  ChevronRight, Plus, Trash2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { createStudent, submitAssessment } from "@/lib/api";
+import { auth } from "@/lib/firebase";
 
-type Stage = "parent" | "student" | "review";
+type Stage = "parent" | "academic" | "student" | "review" | "success";
+
+interface AcademicMark {
+  subject: string;
+  mark: number;
+}
 
 interface FormDataState {
   studentName: string;
   grade: string;
   schoolType: string;
   extraSupport: string;
+  
+  // Academic Marks mapping
+  academicMarks: AcademicMark[];
+
   academicUnderstanding: number;
   academicConsistency: number;
   subjectAvoidance: string;
@@ -67,63 +77,54 @@ export default function OnboardingForm() {
   const [stage, setStage] = useState<Stage>("parent");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [tempPassword, setTempPassword] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) setUserId(user.uid);
+  }, []);
   
   const [formData, setFormData] = useState<FormDataState>({
-    // Parent - Section A: Context
     studentName: "",
     grade: "",
     schoolType: "Public",
     extraSupport: "None",
-    
-    // Parent - Section B: Academic
+    academicMarks: [
+        { subject: "Mathematics", mark: 0 },
+        { subject: "Language Arts", mark: 0 },
+        { subject: "Science", mark: 0 }
+    ],
     academicUnderstanding: 3,
     academicConsistency: 3,
     subjectAvoidance: "None",
-
-    // Parent - Section C: Study & Routine
     studyPattern: "Mix",
     focusDuration: 3,
     reminderDependency: 3,
-
-    // Parent - Section D: Neural & Lifestyle
     sleepQuality: 3,
     physicalActivity: 3,
     screenBalance: 3,
-
-    // Parent - Section E: Emotional & Motivation
     testAnxiety: 3,
     stressSpillover: 3,
     setbackRecovery: 3,
     learningOwnership: 3,
     curiosityLevel: 3,
-
-    // Parent - Section F: Social & Character
     socialComfort: 3,
     empathySignals: 3,
     responsibilityPatterns: 3,
-
-    // Parent - Section G: Parent Context
     checkInFrequency: "Weekly",
     responseToPerformanceDrop: "Supportive",
     topConcerns: [],
-
-    // Student - Section A: Self-Perception
     studentUnderstanding: 3,
     studentConfidence: 3,
     studentEnjoyment: 3,
-
-    // Student - Section B: Focus & Cognition
     studentAttention: 3,
     studentRecall: 3,
     studentFatigue: 3,
-
-    // Student - Section C: Study Behavior
     studentStudyHabit: "Regular",
     studentStudyEffectiveness: 3,
     studentStressLevel: 3,
     studentEffortPride: 3,
-
-    // Student - Section D: Social & Life Skills
     studentAskingQuestions: 3,
     studentGroupWork: 3,
     studentTimeManagement: 3,
@@ -138,9 +139,12 @@ export default function OnboardingForm() {
     if (stage === "parent") {
       if (step < parentSteps) setStep(s => s + 1);
       else {
-        setStage("student");
+        setStage("academic");
         setStep(1);
       }
+    } else if (stage === "academic") {
+        setStage("student");
+        setStep(1);
     } else if (stage === "student") {
       if (step < studentSteps) setStep(s => s + 1);
       else setStage("review");
@@ -148,9 +152,12 @@ export default function OnboardingForm() {
   };
 
   const handleBack = () => {
-    if (stage === "student" && step === 1) {
-      setStage("parent");
-      setStep(parentSteps);
+    if (stage === "academic") {
+        setStage("parent");
+        setStep(parentSteps);
+    } else if (stage === "student" && step === 1) {
+      setStage("academic");
+      setStep(1);
     } else if (stage === "review") {
       setStage("student");
       setStep(studentSteps);
@@ -160,26 +167,101 @@ export default function OnboardingForm() {
   };
 
   const handleSubmit = async () => {
+    if (!userId) {
+        alert("Session expired. Please log in again.");
+        return;
+    }
     setLoading(true);
     try {
       const student = await createStudent({
         name: formData.studentName,
         grade_level: formData.grade,
-        parent_id: "dummy-parent-id",
+        parent_id: userId,
         school_type: formData.schoolType
       });
+
+      if (student.raw_password) {
+        setTempPassword(student.raw_password);
+        setStage("success");
+      }
 
       await submitAssessment(student.id, "onboarding", {
         ...formData
       });
 
-      router.push(`/dashboard/${student.id}`);
+      // If we have a password, we'll show it before redirecting.
+      // If not, we redirect now.
+      if (!student.raw_password) {
+        router.push(`/dashboard/${student.id}`);
+      }
     } catch (error) {
       console.error("Onboarding failed:", error);
       alert("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderSuccess = () => {
+    return (
+      <div className="space-y-12 text-center animate-in fade-in zoom-in duration-700">
+        <div className="space-y-6">
+          <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-8">
+            <Zap className="w-12 h-12 text-primary" />
+          </div>
+          <h2 className="text-5xl font-black text-white uppercase tracking-tighter leading-none">Neural Link <br />Established.</h2>
+          <p className="text-slate-400 font-medium max-w-md mx-auto">Student profile has been encrypted and integrated. Provide these credentials to the student for independent uplink.</p>
+        </div>
+
+        <div className="grid gap-6 p-10 bg-white/5 rounded-[3rem] border border-white/10 relative overflow-hidden">
+          <div className="absolute inset-0 bg-primary/5 animate-pulse" />
+          <div className="relative z-10 space-y-8">
+            <div className="space-y-3">
+              <Label className="uppercase text-[10px] font-black tracking-[0.4em] text-primary">Student Neural ID</Label>
+              <div className="text-3xl font-black text-white tracking-widest bg-white/5 py-4 rounded-2xl border border-white/10">
+                PENDING_ID
+              </div>
+            </div>
+            <div className="space-y-3">
+              <Label className="uppercase text-[10px] font-black tracking-[0.4em] text-primary">Access Key (10 Chars)</Label>
+              <div className="text-3xl font-black text-primary tracking-[0.5em] bg-primary/10 py-4 rounded-2xl border border-primary/20">
+                {tempPassword}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+           <Button 
+            onClick={() => router.push('/dashboard')}
+            className="w-full h-20 bg-primary text-primary-foreground rounded-[2.5rem] font-black text-xl uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all"
+           >
+             Enter Mainframe
+           </Button>
+           <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Store these securely. Hashed encryption prevents recovery.</p>
+        </div>
+      </div>
+    );
+  };
+
+  const addSubject = () => {
+    setFormData({
+        ...formData,
+        academicMarks: [...formData.academicMarks, { subject: "", mark: 0 }]
+    });
+  };
+
+  const removeSubject = (index: number) => {
+    setFormData({
+        ...formData,
+        academicMarks: formData.academicMarks.filter((_, i) => i !== index)
+    });
+  };
+
+  const updateMark = (index: number, field: keyof AcademicMark, value: string | number) => {
+    const newMarks = [...formData.academicMarks];
+    newMarks[index] = { ...newMarks[index], [field]: value };
+    setFormData({ ...formData, academicMarks: newMarks });
   };
 
   const renderParentStep = () => {
@@ -189,7 +271,6 @@ export default function OnboardingForm() {
           <div className="space-y-4 text-center">
             <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1 font-black text-[10px] tracking-[0.3em] uppercase">Stage 01: Parent Context</Badge>
             <h2 className="text-5xl md:text-6xl font-black text-gradient tracking-tighter uppercase leading-none">Baseline <br />Fundamentals.</h2>
-            <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[10px]">Context & Basics</p>
           </div>
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-4">
@@ -208,7 +289,7 @@ export default function OnboardingForm() {
                   <SelectValue placeholder="Select Grade" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-900 border-white/10 text-white">
-                  {["4th Grade", "5th Grade", "6th Grade", "7th Grade", "8th Grade", "9th Grade"].map(g => (
+                  {Array.from({ length: 12 }, (_, i) => `Grade ${i + 1}`).map(g => (
                     <SelectItem key={g} value={g}>{g}</SelectItem>
                   ))}
                 </SelectContent>
@@ -239,12 +320,12 @@ export default function OnboardingForm() {
                     onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} 
                     className="py-4"
                   />
-                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{item.desc}</p>
                </div>
              ))}
           </div>
         </div>
       );
+      // ... (other cases 3,4,5,6 copied but adapted if needed)
       case 3: return (
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="space-y-4 text-center">
@@ -309,7 +390,6 @@ export default function OnboardingForm() {
                        <span className="text-xl font-black text-primary">{formData[item.id]}/5</span>
                     </div>
                     <Slider min={1} max={5} step={1} value={[formData[item.id]]} onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} />
-                    <p className="text-[10px] text-slate-500 font-bold uppercase">{item.desc}</p>
                  </div>
                ))}
              </div>
@@ -345,7 +425,7 @@ export default function OnboardingForm() {
                       <Checkbox 
                         id={concern} 
                         checked={formData.topConcerns.includes(concern)}
-                        onCheckedChange={(checked: boolean | string) => {
+                        onCheckedChange={(checked: boolean) => {
                           if (checked === true) {
                             if (formData.topConcerns.length < 2) {
                               setFormData({...formData, topConcerns: [...formData.topConcerns, concern]});
@@ -365,6 +445,59 @@ export default function OnboardingForm() {
       );
       default: return null;
     }
+  };
+
+  const renderAcademicStep = () => {
+    return (
+        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="space-y-4 text-center">
+                <Badge className="bg-violet-500/10 text-violet-400 border-violet-500/20 px-4 py-1 font-black text-[10px] tracking-[0.3em] uppercase">Academic Excellence Mapping</Badge>
+                <h2 className="text-5xl md:text-6xl font-black text-gradient tracking-tighter uppercase leading-none">Performance <br />Metrics.</h2>
+                <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[10px]">Enter recent marks to map academic patterns</p>
+            </div>
+            
+            <div className="max-w-4xl mx-auto space-y-6">
+                <div className="grid gap-6">
+                    {formData.academicMarks.map((m, i) => (
+                        <div key={i} className="flex items-center gap-6 bg-white/5 p-6 rounded-[2rem] border border-white/5 group">
+                            <div className="flex-1 space-y-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Subject</Label>
+                                <Input 
+                                    value={m.subject}
+                                    onChange={(e) => updateMark(i, 'subject', e.target.value)}
+                                    placeholder="e.g. Mathematics"
+                                    className="h-14 bg-transparent border-none text-xl font-black text-white focus:ring-0 px-0"
+                                />
+                            </div>
+                            <div className="w-32 space-y-2 text-right">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Marks (%)</Label>
+                                <Input 
+                                    type="number"
+                                    value={m.mark}
+                                    onChange={(e) => updateMark(i, 'mark', parseInt(e.target.value) || 0)}
+                                    className="h-14 bg-white/5 border-white/10 rounded-2xl text-center text-xl font-black text-primary focus:ring-primary"
+                                />
+                            </div>
+                            <Button 
+                                variant="ghost" 
+                                onClick={() => removeSubject(i)}
+                                className="h-14 w-14 rounded-2xl hover:bg-rose-500/20 hover:text-rose-400"
+                            >
+                                <Trash2 className="w-5 h-5" />
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+                
+                <Button 
+                    onClick={addSubject}
+                    className="w-full h-16 rounded-[2rem] border-2 border-dashed border-white/10 bg-transparent text-slate-500 font-black uppercase tracking-widest hover:bg-white/5 hover:border-white/20 transition-all"
+                >
+                    <Plus className="mr-2 w-5 h-5" /> Add Subject Dimension
+                </Button>
+            </div>
+        </div>
+    );
   };
 
   const renderStudentStep = () => {
@@ -417,7 +550,7 @@ export default function OnboardingForm() {
             <Badge className="bg-accent/10 text-accent border-accent/20 px-4 py-1 font-black text-[10px] tracking-[0.3em] uppercase">Student Phase: Effort</Badge>
             <h2 className="text-5xl md:text-6xl font-black text-gradient tracking-tighter uppercase leading-none">Pride in <br />Work.</h2>
           </div>
-          <div className="max-w-rl mx-auto">
+          <div className="max-w-xl mx-auto">
              <div className="space-y-12">
                 {[
                   { id: 'studentStressLevel' as const, label: 'Stress Level' },
@@ -475,12 +608,17 @@ export default function OnboardingForm() {
          <div className="flex justify-between items-center px-6">
             <div className="flex items-center gap-4">
                <div className={`w-3 h-3 rounded-full ${stage === 'parent' ? 'bg-primary' : 'bg-primary/20'}`} />
-               <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${stage === 'parent' ? 'text-white' : 'text-slate-600'}`}>Parent Stage</span>
+               <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${stage === 'parent' ? 'text-white' : 'text-slate-600'}`}>Parent Context</span>
             </div>
-            <div className={`h-px flex-1 mx-8 ${stage === 'student' ? 'bg-accent/40' : 'bg-white/5'}`} />
+            <div className={`h-px flex-1 mx-8 ${(stage === 'academic' || stage === 'student' || stage === 'review') ? 'bg-primary/40' : 'bg-white/5'}`} />
+            <div className="flex items-center gap-4">
+               <div className={`w-3 h-3 rounded-full ${stage === 'academic' ? 'bg-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'bg-violet-500/20'}`} />
+               <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${stage === 'academic' ? 'text-white' : 'text-slate-600'}`}>Academic Mapping</span>
+            </div>
+            <div className={`h-px flex-1 mx-8 ${(stage === 'student' || stage === 'review') ? 'bg-accent/40' : 'bg-white/5'}`} />
             <div className="flex items-center gap-4">
                <div className={`w-3 h-3 rounded-full ${stage === 'student' ? 'bg-accent shadow-[0_0_15px_rgba(255,100,200,0.5)]' : 'bg-accent/20'}`} />
-               <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${stage === 'student' ? 'text-white' : 'text-slate-600'}`}>Student Stage</span>
+               <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${stage === 'student' ? 'text-white' : 'text-slate-600'}`}>Student Phase</span>
             </div>
          </div>
       </div>
@@ -496,37 +634,41 @@ export default function OnboardingForm() {
           <Card className="glass border-none rounded-[4rem] overflow-hidden">
             <CardContent className="p-10 md:p-20">
               {stage === "parent" && renderParentStep()}
+              {stage === "academic" && renderAcademicStep()}
               {stage === "student" && renderStudentStep()}
               {stage === "review" && renderReview()}
+              {stage === "success" && renderSuccess()}
 
-              <div className="mt-20 flex justify-between items-center px-4">
-                <Button 
-                  variant="ghost" 
-                  onClick={handleBack} 
-                  disabled={(stage === "parent" && step === 1) || loading}
-                  className="px-12 h-18 rounded-3xl font-black uppercase tracking-[0.2em] text-slate-500 hover:bg-white/5 hover:text-white transition-all disabled:opacity-0"
-                >
-                  Regress
-                </Button>
-                
-                {stage !== "review" ? (
+              {stage !== "success" && (
+                <div className="mt-20 flex justify-between items-center px-4">
                   <Button 
-                    onClick={handleNext}
-                    className={`px-16 h-20 rounded-[2.5rem] font-black text-lg uppercase tracking-widest shadow-2xl transition-all hover:-translate-y-1 active:scale-95 group ${stage === 'parent' ? 'bg-primary text-primary-foreground shadow-primary/20' : 'bg-accent text-white shadow-accent/20'}`}
+                    variant="ghost" 
+                    onClick={handleBack} 
+                    disabled={(stage === "parent" && step === 1) || loading}
+                    className="px-12 h-18 rounded-3xl font-black uppercase tracking-[0.2em] text-slate-500 hover:bg-white/5 hover:text-white transition-all disabled:opacity-0"
                   >
-                    Sync Next
-                    <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    Regress
                   </Button>
-                ) : (
-                  <Button 
-                    onClick={handleSubmit} 
-                    disabled={loading}
-                    className="bg-white text-slate-950 px-24 h-24 rounded-[3.5rem] font-black text-2xl uppercase tracking-tighter shadow-[0_0_80px_rgba(255,255,255,0.4)] transition-all hover:scale-105 active:scale-95"
-                  >
-                    {loading ? <Loader2 className="w-8 h-8 animate-spin mr-3" /> : 'Launch Intelligence'}
-                  </Button>
-                )}
-              </div>
+                  
+                  {stage !== "review" ? (
+                    <Button 
+                      onClick={handleNext}
+                      className={`px-16 h-20 rounded-[2.5rem] font-black text-lg uppercase tracking-widest shadow-2xl transition-all hover:-translate-y-1 active:scale-95 group ${stage === 'parent' ? 'bg-primary text-primary-foreground shadow-primary/20' : stage === 'academic' ? 'bg-violet-600 text-white shadow-violet-500/20' : 'bg-accent text-white shadow-accent/20'}`}
+                    >
+                      Sync Next
+                      <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={handleSubmit} 
+                      disabled={loading}
+                      className="bg-white text-slate-950 px-24 h-24 rounded-[3.5rem] font-black text-2xl uppercase tracking-tighter shadow-[0_0_80px_rgba(255,255,255,0.4)] transition-all hover:scale-105 active:scale-95"
+                    >
+                      {loading ? <Loader2 className="w-8 h-8 animate-spin mr-3" /> : 'Launch Intelligence'}
+                    </Button>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>

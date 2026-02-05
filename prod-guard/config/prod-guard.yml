@@ -1,0 +1,33 @@
+gates:
+  allow_autofix: true
+
+unit_tests:
+  required: true
+
+e2e_tests:
+  required: true
+  isolated: true
+
+cors:
+  allow_wildcard: false
+
+rate_limit:
+  requests_per_minute:
+    max: 300
+
+network:
+  timeout_ms:
+    min: 3000
+
+load:
+  p95_latency_ms: 2000
+  error_rate: 0.02
+
+sql_injection:
+  enabled: true
+  block_on_vulnerability: true
+
+security:
+  block_on:
+    - High
+    - Medium

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { blogPosts, blogCategories } from "@/data/blog-posts";
 import { Brain, Search, Clock, ChevronRight, Sparkles } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -19,22 +20,33 @@ export default function BlogListing() {
   });
 
   return (
-    <div className="min-h-screen bg-[#030712] selection:bg-primary selection:text-black pt-32 pb-20">
+    <div className="min-h-screen bg-background selection:bg-primary selection:text-black pt-32 pb-20 transition-colors duration-300">
       {/* Navigation (Simplified for Blog) */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between glass px-8 py-4 rounded-[2rem] border border-white/5 backdrop-blur-2xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between glass px-8 py-4 rounded-[2rem] border border-border/10 backdrop-blur-2xl">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="bg-primary p-2 rounded-xl group-hover:scale-110 transition-transform">
               <Brain className="w-5 h-5 text-black" />
             </div>
-            <span className="text-xl font-black text-white uppercase tracking-tighter">Mentiscope</span>
+            <span className="text-xl font-black text-foreground uppercase tracking-tighter">Mentiscope</span>
           </Link>
-          <Link 
-            href="/" 
-            className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-white transition-colors"
-          >
-            Back to Architecture
-          </Link>
+          <div className="flex items-center gap-6">
+            <ThemeToggle />
+            <div className="flex items-center gap-8 border-l border-border/20 pl-6">
+              <Link 
+                  href="/dashboard" 
+                  className="text-[10px] font-black uppercase tracking-[0.3em] text-primary hover:text-foreground transition-colors"
+              >
+                  Dashboard
+              </Link>
+              <Link 
+                  href="/" 
+                  className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                  Back to Home
+              </Link>
+            </div>
+          </div>
         </div>
       </nav>
 
@@ -47,7 +59,7 @@ export default function BlogListing() {
             className="inline-flex items-center gap-3 px-6 py-2 rounded-full glass border border-primary/20"
           >
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Intelligence Archive</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Learning Hub</span>
           </motion.div>
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
@@ -55,28 +67,28 @@ export default function BlogListing() {
             transition={{ delay: 0.1 }}
             className="text-6xl md:text-9xl font-black text-white tracking-tighter uppercase leading-[0.8]"
           >
-            Neural <span className="text-gradient">Insights</span>.
+            Our <span className="text-gradient">Blog</span>.
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-slate-500 font-medium leading-relaxed"
+            className="text-xl text-muted-foreground font-medium leading-relaxed"
           >
-            Exploring the intersection of neuroscience, educational psychology, and parenting protocol.
+            Helpful tips and articles to help your child succeed in learning.
           </motion.p>
         </div>
 
         {/* Search and Filter */}
         <div className="flex flex-col md:flex-row gap-6 items-center justify-between glass p-8 rounded-[3rem] border border-white/5">
           <div className="relative w-full md:max-w-md group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <input 
               type="text"
-              placeholder="Search intelligence cache..."
+              placeholder="Search our blog..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-14 py-4 text-sm font-bold text-white focus:outline-none focus:ring-2 ring-primary/20 transition-all"
+              className="w-full bg-background/50 border border-border/10 rounded-2xl px-14 py-4 text-sm font-bold text-foreground focus:outline-none focus:ring-2 ring-primary/20 transition-all"
             />
           </div>
           
@@ -88,7 +100,7 @@ export default function BlogListing() {
                 className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   selectedCategory === cat 
                     ? "bg-primary text-black shadow-[0_0_20px_rgba(135,255,200,0.3)]" 
-                    : "bg-white/5 text-slate-500 hover:text-white"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {cat}
@@ -125,18 +137,18 @@ export default function BlogListing() {
                 </div>
                 
                 <div className="p-12 space-y-6">
-                  <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                  <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                     <span className="flex items-center gap-2"><Clock className="w-3 h-3" /> {post.readTime}</span>
                     <span>{post.date}</span>
                   </div>
-                  <h3 className="text-2xl font-black text-white leading-tight uppercase tracking-tight group-hover:text-primary transition-colors">
+                  <h3 className="text-2xl font-black text-foreground leading-tight uppercase tracking-tight group-hover:text-primary transition-colors">
                     {post.title}
                   </h3>
-                  <p className="text-slate-500 font-medium line-clamp-2 leading-relaxed">
+                  <p className="text-muted-foreground font-medium line-clamp-2 leading-relaxed">
                     {post.excerpt}
                   </p>
                   <div className="pt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-primary group-hover:gap-4 transition-all">
-                    Initialize Full Cache <ChevronRight className="w-4 h-4" />
+                    Read Full Article <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
               </Link>
@@ -145,8 +157,8 @@ export default function BlogListing() {
         </div>
 
         {filteredPosts.length === 0 && (
-          <div className="text-center py-40 glass rounded-[4rem] border border-white/5">
-            <h3 className="text-2xl font-black text-slate-600 uppercase tracking-[0.2em]">Cache Empty. Refine Search.</h3>
+          <div className="text-center py-40 glass rounded-[4rem] border border-border/10">
+            <h3 className="text-2xl font-black text-muted-foreground uppercase tracking-[0.2em]">No articles found. Try another search.</h3>
           </div>
         )}
       </div>

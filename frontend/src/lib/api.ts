@@ -2,18 +2,21 @@ import { db, auth } from "./firebase";
 import { collection, addDoc, doc, getDoc, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { Student } from "@/types";
 
-export async function createStudent(data: { name: string, grade_level: string, parent_id: string, school_type?: string }): Promise<Student> {
-  const studentsRef = collection(db, "students");
-  const docRef = await addDoc(studentsRef, {
-    ...data,
-    created_at: Timestamp.now()
+export async function createStudent(data: { name: string, grade_level: string, parent_id: string, school_type?: string }): Promise<Student & { raw_password?: string }> {
+  const response = await fetch("/api/students", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
   });
-  
-  return {
-    id: docRef.id,
-    ...data,
-    created_at: new Date().toISOString()
-  } as unknown as Student;
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to create student");
+  }
+
+  return await response.json();
 }
 
 export async function submitAssessment(studentId: string, type: string, data: Record<string, unknown>) {
@@ -31,10 +34,36 @@ export async function submitAssessment(studentId: string, type: string, data: Re
   };
 }
 
-export async function createCheckoutSession(_userId: string) {
-  // For now, return a dummy link or mock functionality as Stripe requires backend
-  console.log("Stripe integration requires a backend function. Skipping for Firebase-only client.");
-  return { url: "#" };
+export async function createCheckoutSession(productId: string, planName: string, price: string) {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("You must be logged in to commence checkout.");
+  }
+
+  const idToken = await user.getIdToken();
+  
+  try {
+    const response = await fetch(`${API_URL}/api/payments/checkout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
+      body: JSON.stringify({ productId, planName, price })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to initialize payment protocol.");
+    }
+
+    const data = await response.json();
+    return data; // Should contain { url: '...' }
+  } catch (error: unknown) {
+    console.error("Payment Initialization Failed:", error);
+    const message = error instanceof Error ? error.message : "Failed to initialize payment protocol.";
+    throw new Error(message);
+  }
 }
 
 export async function getStudentDashboard(studentId: string): Promise<Student> {

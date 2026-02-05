@@ -1,29 +1,54 @@
 {
   "learning_science": [
     {
-      "title": "Visible Learning",
+      "title": "Visible Learning for Teachers",
       "authors": "John Hattie",
-      "year": 2008,
-      "key_finding": "Feedback and student self-assessment are among the highest impact factors on learning growth."
+      "year": 2012,
+      "key_finding": "Student self-reporting of grades has one of the highest effect sizes (1.44) on learning achievement.",
+      "application": "Directly impacts the accuracy of self-perception mapping."
     },
     {
-      "title": "Mindset: The New Psychology of Success",
-      "authors": "Carol Dweck",
-      "year": 2006,
-      "key_finding": "Growth mindset intervention significantly improves academic trajectory in transitioning students."
+      "title": "Grit: The Power of Passion and Perseverance",
+      "authors": "Angela Duckworth",
+      "year": 2016,
+      "key_finding": "High levels of grit are 2x more predictive of graduation rates than IQ alone.",
+      "application": "Used to calculate setback recovery and persistence metrics."
     },
     {
-      "title": "The Science of Learning",
-      "authors": "Deans for Impact",
-      "year": 2015,
-      "key_finding": "Spaced repetition and dual coding improve long-term retention of complex concepts."
+      "title": "The Science of Learning: 77 Findings That Every Teacher Should Know",
+      "authors": "Bradley Busch & Edward Watson",
+      "year": 2019,
+      "key_finding": "Retrieval practice is the most effective way to transfer information from short-term to long-term memory.",
+      "application": "Basis for daily retrieval protocols in our Action Plan."
+    },
+    {
+      "title": "Atomic Habits",
+      "authors": "James Clear",
+      "year": 2018,
+      "key_finding": "Habit stacking and environment design are the most efficient ways to lower cognitive friction.",
+      "application": "Drives the Environmental Adjustments logic."
     }
   ],
   "psychological_foundations": [
     {
-      "name": "Self-Determination Theory",
+      "name": "Self-Determination Theory (SDT)",
       "authors": "Deci & Ryan",
-      "focus": "Autonomy, Competence, and Relatedness as drivers of intrinsic motivation."
+      "focus": "Autonomy, Competence, and Relatedness.",
+      "relevance": "Core driver for our Motivation & Agency scoring."
+    },
+    {
+      "name": "The Zone of Proximal Development (ZPD)",
+      "authors": "Lev Vygotsky",
+      "focus": "Optimal discomfort zone where learning occurs with guidance.",
+      "relevance": "Used to set the 'Standard Synthesis' growth targets."
     }
-  ]
+  ],
+  "monetization_insights": {
+    "premium_features": [
+        "Deep Neural Trajectory Analysis",
+        "AI-Driven Comparative Benchmarking",
+        "Expert Consultation Uplink",
+        "Psychometric Archetype Discovery"
+    ]
+  }
 }

@@ -6,13 +6,13 @@ import { motion } from "framer-motion";
 import { 
   ResponsiveContainer, 
   Radar, RadarChart, PolarGrid, PolarAngleAxis, Tooltip,
-  Area, AreaChart, XAxis, YAxis
+  Area, AreaChart, XAxis, YAxis, BarChart, Bar, CartesianGrid
 } from "recharts";
 import { 
   TrendingUp, TrendingDown, Minus, AlertTriangle, 
   Brain, Zap, Activity, Sparkles, Loader2,
   CheckCircle2, AlertCircle, MessageSquare, HelpCircle, Calendar,
-  Shield, Target, Globe, ArrowRight, MousePointer2
+  Shield, Target, Globe, ArrowRight, MousePointer2, LineChart
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -92,12 +92,18 @@ interface ScientificCitation {
   relevance_to_child: string;
 }
 
+interface AcademicMark {
+  subject: string;
+  mark: string;
+}
+
 interface AnalysisResults {
   dashboard_summary?: string;
   overall_growth_summary?: string;
   confidence_level?: number;
   perception_gap?: PerceptionGap;
   trajectory?: TrajectoryData;
+  academic_mapping?: AcademicMark[];
   dimensions?: Dimension[];
   strengths?: Strength[];
   support_areas?: SupportArea[];
@@ -571,6 +577,82 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               )}
            </div>
         </Card>
+
+         {/* Academic Excellence Mapping Chart */}
+         {analysis.academic_mapping && analysis.academic_mapping.length > 0 && (
+            <Card className="lg:col-span-12 glass border-none rounded-[4rem] p-12 md:p-20 space-y-12 bg-linear-to-br from-violet-500/5 to-transparent border border-violet-500/10">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                  <div className="space-y-4">
+                     <Badge className="bg-violet-500/10 text-violet-400 border-violet-500/20 px-6 py-2 font-black uppercase text-[10px] tracking-[0.4em]">Academic Excellence Mapping</Badge>
+                     <h2 className="text-5xl font-black text-white uppercase tracking-tighter leading-none">Subject-Wise <br /><span className="text-gradient">Proficiency</span>.</h2>
+                  </div>
+                  <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 flex items-center gap-6">
+                     <div className="w-12 h-12 rounded-2xl bg-violet-500/20 flex items-center justify-center">
+                        <LineChart className="w-6 h-6 text-violet-400" />
+                     </div>
+                     <div className="text-right">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Composite Score</p>
+                        <p className="text-3xl font-black text-white">
+                           {Math.round(analysis.academic_mapping.reduce((acc: number, m: AcademicMark) => acc + (parseInt(m.mark) || 0), 0) / analysis.academic_mapping.length)}%
+                        </p>
+                     </div>
+                  </div>
+               </div>
+
+               <div className="h-[400px] w-full mt-10">
+                  <ResponsiveContainer width="100%" height="100%">
+                     <BarChart data={analysis.academic_mapping} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                        <defs>
+                           <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1} />
+                              <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                           </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                        <XAxis 
+                           dataKey="subject" 
+                           stroke="#475569" 
+                           fontSize={10} 
+                           fontWeight="black" 
+                           tickLine={false} 
+                           axisLine={false}
+                           interval={0}
+                           angle={-45}
+                           textAnchor="end"
+                        />
+                        <YAxis 
+                           stroke="#475569" 
+                           fontSize={10} 
+                           fontWeight="black" 
+                           tickLine={false} 
+                           axisLine={false}
+                           domain={[0, 100]}
+                        />
+                        <Tooltip 
+                           cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                           content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                 return (
+                                    <div className="bg-[#030712] border border-white/10 p-6 rounded-3xl shadow-2xl backdrop-blur-xl">
+                                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{payload[0].payload.subject}</p>
+                                       <p className="text-2xl font-black text-violet-400">{payload[0].value}%</p>
+                                    </div>
+                                 );
+                              }
+                              return null;
+                           }}
+                        />
+                        <Bar 
+                           dataKey="mark" 
+                           fill="url(#barGradient)" 
+                           radius={[12, 12, 0, 0]} 
+                           animationDuration={2000}
+                        />
+                     </BarChart>
+                  </ResponsiveContainer>
+               </div>
+            </Card>
+         )}
 
         {/* Section 4: Action Plan Architecture (Result Oriented Categorization) */}
         <div className="lg:col-span-12 space-y-12 pt-10">
