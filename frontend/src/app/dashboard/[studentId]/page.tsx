@@ -639,12 +639,14 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                     </div>
                  </div>
                  <div className="space-y-4">
-                    {actionPlan.environment_adjustments?.map((act: string, i: number) => (
+                    {actionPlan.environment_adjustments?.map((act: any, i: number) => (
                       <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[2.5rem] flex gap-6 group hover:border-white/40 transition-all">
                          <div className="w-6 h-6 rounded-full border border-white/20 shrink-0 mt-1 flex items-center justify-center group-hover:bg-white/10 transition-colors">
                             <Globe className="w-3 h-3 text-slate-600" />
                          </div>
-                         <p className="text-md font-bold text-slate-300 border-none leading-relaxed">{act}</p>
+                         <p className="text-md font-bold text-slate-300 border-none leading-relaxed">
+                           {typeof act === 'object' ? act.task || JSON.stringify(act) : act}
+                         </p>
                       </div>
                     ))}
                  </div>

@@ -123,7 +123,9 @@ function performStandardSynthesis(student, assessmentData) {
                 { task: "Review progress metrics weekly", type: "Strategic" }
             ],
             environment_adjustments: [
-                { task: "Designate a quiet neural-focus zone for learning", type: "Structural" }
+                "Designate a quiet neural-focus zone for learning",
+                "Implement a visual growth-tracking ritual",
+                "Buffer digital transitions with physical cooldowns"
             ]
         },
         communication_guidance: {
