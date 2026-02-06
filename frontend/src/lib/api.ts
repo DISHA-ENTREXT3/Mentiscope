@@ -144,3 +144,40 @@ export async function triggerAnalysis(studentId: string): Promise<{ status: stri
     throw new Error(message);
   }
 }
+export async function analyzeWithOpenRouter(prompt: string, studentId?: string): Promise<{ analysis: string, cost: number }> {
+  if (!auth) {
+    throw new Error("Firebase not initialized");
+  }
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("You must be logged in to use AI analysis.");
+  }
+
+  const idToken = await user.getIdToken();
+  
+  try {
+    const response = await fetch(`${API_URL}/api/students/${studentId || 'analyze'}/analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
+      body: JSON.stringify({ 
+        prompt,
+        studentId
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to generate AI analysis.");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error: unknown) {
+    console.error("AI Analysis Failed:", error);
+    const message = error instanceof Error ? error.message : "Failed to generate AI analysis.";
+    throw new Error(message);
+  }
+}

@@ -404,4 +404,108 @@ app.post('/api/schedule', authenticate, async (req, res) => {
     }
 });
 
+// OpenRouter AI Analysis Endpoint
+app.post('/api/students/:studentId/analyze', authenticate, async (req, res) => {
+    const { studentId } = req.params;
+    const { prompt } = req.body;
+    const userId = req.user.user_id || req.user.sub || req.user.uid;
+    const openRouterKey = process.env.OPENROUTER_API_KEY;
+
+    if (!openRouterKey) {
+        return res.status(500).json({ error: "AI analysis not configured. Please add OPENROUTER_API_KEY." });
+    }
+
+    if (!studentId || !prompt) {
+        return res.status(400).json({ error: "Student ID and prompt required" });
+    }
+
+    try {
+        // Verify student ownership
+        const studentRaw = await firestoreREST('GET', `students/${studentId}`, null, req.idToken);
+        const student = fromFirestore(studentRaw);
+        const ownerId = student.parent_id || student.userId || student.owner_id;
+
+        if (ownerId && ownerId.trim() !== userId.trim()) {
+            return res.status(403).json({ error: 'Permission Denied: Student not owned by user' });
+        }
+
+        // Call OpenRouter API with free tier model
+        const openRouterResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${openRouterKey}`,
+                'Content-Type': 'application/json',
+                'HTTP-Referer': process.env.OPENROUTER_REFERER || 'https://mentiscope.vercel.app',
+                'X-Title': 'Mentiscope'
+            },
+            body: JSON.stringify({
+                model: 'mistral/mistral-7b-instruct:free', // Free tier model
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are an educational analyst helping understand student learning patterns. Provide structured, actionable insights based on assessment data.'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 1500
+            })
+        });
+
+        if (!openRouterResponse.ok) {
+            const errorData = await openRouterResponse.json();
+            throw new Error(`OpenRouter API error: ${errorData.error?.message || 'Unknown error'}`);
+        }
+
+        const data = await openRouterResponse.json();
+        const analysisText = data.choices?.[0]?.message?.content || '';
+        
+        // Extract cost info from headers if available
+        const cost = parseFloat(data.usage?.total_cost || 0);
+
+        // Store analysis in database
+        const queryUrl = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery`;
+        const qRes = await fetch(queryUrl, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${req.idToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                structuredQuery: {
+                    from: [{ collectionId: 'assessments' }],
+                    where: { fieldFilter: { field: { fieldPath: 'student_id' }, op: 'EQUAL', value: { stringValue: studentId } } },
+                    limit: 1
+                }
+            })
+        });
+
+        const qData = await qRes.json();
+        const latestDoc = Array.isArray(qData) && qData[0]?.document ? qData[0].document : null;
+
+        if (latestDoc) {
+            const assessmentPath = latestDoc.name.split('/documents/')[1];
+            await firestoreREST('PATCH', assessmentPath, {
+                fields: {
+                    ...latestDoc.fields,
+                    ai_analysis: { stringValue: analysisText },
+                    ai_model: { stringValue: 'mistral-7b-free' },
+                    ai_analyzed_at: { timestampValue: new Date().toISOString() }
+                }
+            }, req.idToken);
+        }
+
+        res.json({
+            analysis: analysisText,
+            cost: cost,
+            model: 'mistral-7b-instruct:free',
+            success: true
+        });
+
+    } catch (error) {
+        console.error("AI Analysis Error:", error.message);
+        res.status(500).json({ error: `Analysis failed: ${error.message}` });
+    }
+});
+
 app.listen(PORT, () => console.log(`Standard synthesis active on ${PORT}`));

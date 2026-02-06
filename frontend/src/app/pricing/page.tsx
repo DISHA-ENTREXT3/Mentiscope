@@ -74,26 +74,49 @@ export default function PricingPage() {
         "Basic Growth Synthesis",
         "Monthly Trend Analysis",
         "Standard Support",
-        "1 Student Profile"
+        "1 Student Profile",
+        "Limited API Access"
       ],
       highlight: false,
       cta: "Current Plan"
     },
     {
       name: "Cognitive Pro",
-      description: "Deep insights & predictive action plans.",
+      description: "Deep insights & predictive action plans with AI analysis.",
       price: billingCycle === "monthly" ? 29 : 290,
-      productId: billingCycle === "monthly" ? "p_monthly_pro_123" : "p_yearly_pro_123", // Dodo Product IDs
+      productId: billingCycle === "monthly" ? "p_monthly_pro_123" : "p_yearly_pro_123",
       features: [
         "Advanced AI Synthesis",
+        "OpenRouter AI Analysis (50 calls/month)",
         "Predictive Behavioral Modeling",
         "Priority Expert Support",
         "Up to 3 Student Profiles",
         "Deep Perception Mapping",
-        "Personalized Action Protocols"
+        "Personalized Action Protocols",
+        "Custom Report Generation"
       ],
       highlight: true,
       cta: "Upgrade Neural Link"
+    },
+    {
+      name: "Neural Elite",
+      description: "Unlimited AI-powered insights & concierge support.",
+      price: billingCycle === "monthly" ? 99 : 990,
+      productId: billingCycle === "monthly" ? "p_monthly_elite_456" : "p_yearly_elite_456",
+      features: [
+        "Unlimited AI Analysis",
+        "Real-time OpenRouter Integration",
+        "Predictive Behavioral Modeling",
+        "24/7 Concierge Support",
+        "Unlimited Student Profiles",
+        "Deep Perception Mapping",
+        "Personalized Action Protocols",
+        "Priority API Access",
+        "Custom Integration Support",
+        "Quarterly Expert Consultations"
+      ],
+      highlight: false,
+      cta: "Activate Elite Access"
     }
   ];
 
