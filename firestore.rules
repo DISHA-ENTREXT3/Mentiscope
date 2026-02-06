@@ -4,26 +4,17 @@ service cloud.firestore {
     
     // Students Collection
     match /students/{studentId} {
-      // Parents can read their own students (including password field for now)
+      // Parents can read their own students
       allow read: if request.auth != null && 
                   request.auth.uid == resource.data.parent_id;
       
       // Parents can create students
       allow create: if request.auth != null && 
-                    request.auth.uid == request.resource.data.parent_id &&
-                    // Ensure password is provided (10 characters)
-                    request.resource.data.password is string &&
-                    request.resource.data.password.size() == 10 &&
-                    // Ensure neural_id is provided
-                    request.resource.data.neural_id is string;
+                    request.auth.uid == request.resource.data.parent_id;
       
-      // Parents can update their students (but not password or neural_id)
+      // Parents can update their students
       allow update: if request.auth != null && 
-                    request.auth.uid == resource.data.parent_id &&
-                    // Prevent password modification via update
-                    request.resource.data.password == resource.data.password &&
-                    // Prevent neural_id modification
-                    request.resource.data.neural_id == resource.data.neural_id;
+                    request.auth.uid == resource.data.parent_id;
       
       // Parents can delete their students
       allow delete: if request.auth != null && 
