@@ -23,15 +23,24 @@ export async function submitAssessment(studentId: string, type: string, data: Re
   if (!db) {
     throw new Error("Firestore not initialized");
   }
+  if (!auth) {
+    throw new Error("Firebase not initialized");
+  }
+  
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("You must be logged in to submit assessment");
+  }
+  
   const assessmentsRef = collection(db, "assessments");
-  const user = auth?.currentUser;
   
   const docRef = await addDoc(assessmentsRef, {
     student_id: studentId,
-    parent_id: user?.uid, // Added for easier security rule validation
+    parent_id: user.uid, // Use current user's UID
     type,
     data,
-    created_at: Timestamp.now()
+    created_at: Timestamp.now(),
+    status: "submitted"
   });
   
   return {

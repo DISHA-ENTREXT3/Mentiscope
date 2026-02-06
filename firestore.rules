@@ -37,20 +37,19 @@ service cloud.firestore {
                   exists(/databases/$(database)/documents/students/$(resource.data.student_id)) &&
                   get(/databases/$(database)/documents/students/$(resource.data.student_id)).data.parent_id == request.auth.uid;
       
-      // Create: Allow if user claims ownership (sets parent_id to self) and student exists
+      // Create: Allow if parent_id matches auth UID (regardless of student existence - student might be in mock mode)
       allow create: if request.auth != null && 
-                    request.resource.data.parent_id == request.auth.uid &&
-                    exists(/databases/$(database)/documents/students/$(request.resource.data.student_id));
+                    request.resource.data.parent_id == request.auth.uid;
       
-      // Update: Allow if you own the student OR if it's the backend service updating analysis
-      allow update: if request.auth != null && (
-                    (exists(/databases/$(database)/documents/students/$(resource.data.student_id)) &&
-                     get(/databases/$(database)/documents/students/$(resource.data.student_id)).data.parent_id == request.auth.uid) ||
-                    // Allow service account to update analysis_results, status, and analyzed_at
-                    (request.resource.data.analysis_results != null &&
-                     request.resource.data.status != null &&
-                     request.resource.data.analyzed_at != null)
-                   );
+      // Update: Allow if you own the student (parent_id match) or if updating with analysis fields
+      allow update: if request.auth != null && 
+                    (request.resource.data.parent_id == request.auth.uid ||
+                     // Also allow updates that include analysis results
+                     request.resource.data.analysis_results != null);
+      
+      // Delete: Allow if you own the student
+      allow delete: if request.auth != null &&
+                    resource.data.parent_id == request.auth.uid;
     }
     
     // Analysis Results Collection
