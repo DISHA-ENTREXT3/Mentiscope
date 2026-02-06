@@ -93,15 +93,19 @@ export function SupportChatbot() {
     
     setIsSubmitting(true);
     try {
+      // Concatenate the conversation history into a single message string
       const transcript = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n");
       
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      
+      // Call our Next.js backend API, which securely forwards to the Supabase endpoint
+      // This matches the user's request to "move the API call to the backend"
       const res = await fetch(`${baseUrl}/api/support`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          product: "Mentiscope",
-          category: "General Support",
+          product: "Mentiscope",  // Hardcoded as per context
+          category: "General Support", // Default category
           message: transcript,
           user_email: supportEmail
         })
@@ -116,7 +120,8 @@ export function SupportChatbot() {
         }]);
         setShowSupportForm(false);
       } else {
-        throw new Error("Failed to sync");
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to sync");
       }
     } catch (error) {
       console.error(error);

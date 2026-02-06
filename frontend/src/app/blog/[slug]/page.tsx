@@ -117,7 +117,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="prose prose-invert prose-2xl max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-p:text-slate-400 prose-p:font-medium prose-p:leading-relaxed prose-strong:text-white prose-li:text-slate-400"
+          className="prose prose-invert prose-lg max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-p:text-slate-300 prose-p:font-medium prose-p:leading-relaxed prose-strong:text-white prose-li:text-slate-300"
           dangerouslySetInnerHTML={{ __html: post.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br />').replace(/## (.*)/g, '<h2 class="text-4xl md:text-5xl mt-20 mb-10 text-white uppercase tracking-tighter leading-none">$1</h2>') }}
         />
 

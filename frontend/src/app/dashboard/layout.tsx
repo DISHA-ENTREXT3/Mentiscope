@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
@@ -20,6 +20,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState(auth.currentUser);
   const studentId = pathname.split('/')[2] || "demo-student-id";
 
@@ -50,11 +51,15 @@ export default function DashboardLayout({
         <nav className="flex-1 space-y-3">
           {[
             { name: "Intelligence Core", href: `/dashboard/${studentId}`, icon: LayoutDashboard },
-            { name: "Neural Trends", href: "#", icon: LineChart },
-            { name: "Action Protocols", href: "#", icon: FileText },
-            { name: "System Settings", href: "#", icon: Settings },
+            { name: "Neural Trends", href: `/dashboard/${studentId}?view=trends`, icon: LineChart },
+            { name: "Action Protocols", href: `/dashboard/${studentId}?view=actions`, icon: FileText },
+            { name: "System Settings", href: `/dashboard/${studentId}?view=settings`, icon: Settings },
           ].map((item) => {
-            const isActive = pathname === item.href;
+            const itemUrl = item.href.split('?')[0];
+            const itemView = item.href.includes('?view=') ? item.href.split('view=')[1] : null;
+            const currentView = searchParams?.get('view') || null;
+            
+            const isActive = pathname === itemUrl && currentView === itemView;
             return (
               <Link 
                 key={item.name} 

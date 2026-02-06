@@ -95,7 +95,7 @@ export default function Home() {
         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px] -z-10 translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[100px] -z-10 -translate-x-1/2 translate-y-1/2" />
         
-        <div className="max-w-7xl mx-auto flex flex-col items-center text-center lg:text-left lg:items-start lg:flex-row gap-20">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center lg:text-left lg:items-center lg:flex-row gap-20">
           <div className="flex-1 space-y-12">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -254,6 +254,7 @@ export default function Home() {
               <li><Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">Privacy Policy</Link></li>
               <li><Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">Terms of Service</Link></li>
               <li><Link href="/cookies" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">Cookie Policy</Link></li>
+              <li><Link href="/refund" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">Refund Policy</Link></li>
             </ul>
           </div>
         </div>

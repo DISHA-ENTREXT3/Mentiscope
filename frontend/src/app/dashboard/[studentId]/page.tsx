@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use, useCallback } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
   ResponsiveContainer, 
@@ -12,7 +13,7 @@ import {
   TrendingUp, TrendingDown, Minus, AlertTriangle, 
   Brain, Zap, Activity, Sparkles, Loader2,
   CheckCircle2, AlertCircle, MessageSquare, HelpCircle, Calendar,
-  Shield, Target, Globe, ArrowRight, MousePointer2, LineChart
+  Shield, Target, Globe, ArrowRight, MousePointer2, LineChart, Settings
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -117,6 +118,8 @@ interface AnalysisResults {
 export default function DashboardPage({ params }: { params: Promise<{ studentId: string }> }) {
   const resolvedParams = use(params);
   const studentId = resolvedParams.studentId;
+  const searchParams = useSearchParams();
+  const view = searchParams.get('view') || 'overview';
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -278,7 +281,9 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
 
       <div className="grid lg:grid-cols-12 gap-10">
 
-        {/* Predictive Trajectory Card (Innovative) */}
+        {(view === 'overview') && (
+        <>
+        {/* Predictive Trajectory Card (Innovative) */  }
         <Card className="lg:col-span-8 glass border-none rounded-[4rem] p-12 bg-linear-to-br from-primary/5 to-background border border-white/5 relative overflow-hidden group">
            <div className="relative z-10 space-y-8">
               <div className="flex justify-between items-start">
@@ -337,7 +342,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
            </div>
         </Card>
 
-        {/* Synergy Meter (Innovative Perception Gap) */}
+        {/* Synergy Meter (Innovative Perception Gap) */  }
         <Card className="lg:col-span-4 glass border-none rounded-[4rem] p-12 bg-linear-to-b from-accent/5 to-background border border-white/5 flex flex-col justify-between">
            <div className="space-y-8">
               <div className="space-y-2">
@@ -379,8 +384,10 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               </div>
            </div>
         </Card>
+        </>
+        )}
 
-        {/* Deep Analysis Banner (Attractive Integration) */}
+        {(view === 'overview') && (
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -422,7 +429,10 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
              </div>
           </div>
         </motion.div>
+        )}
 
+        {(view === 'trends') && (
+        <>
         {/* Existing Growth Matrix Section */}
         <Card className="lg:col-span-8 glass border-none rounded-[4rem] p-12 space-y-12">
            <div className="flex justify-between items-end">
@@ -538,8 +548,10 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               </div>
            </div>
         </div>
+        </>
+        )}
 
-        {/* Early Risk signals */}
+        {(view === 'overview') && (
         <Card className="lg:col-span-12 glass border-none rounded-[4rem] p-12 space-y-12 bg-linear-to-r from-background to-rose-500/5 border border-rose-500/10">
            <div className="flex items-center gap-4">
               <div className="p-4 rounded-full bg-rose-500/10 text-rose-500">
@@ -582,7 +594,10 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               )}
            </div>
         </Card>
+        )}
 
+         {(view === 'trends') && (
+         <>
          {/* Academic Excellence Mapping Chart */}
          {analysis.academic_mapping && analysis.academic_mapping.length > 0 && (
             <Card className="lg:col-span-12 glass border-none rounded-[4rem] p-12 md:p-20 space-y-12 bg-linear-to-br from-violet-500/5 to-transparent border border-violet-500/10">
@@ -658,7 +673,11 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                </div>
             </Card>
          )}
+         </>
+         )}
 
+        {(view === 'actions') && (
+        <>
         {/* Section 4: Action Plan Architecture (Result Oriented Categorization) */}
         <div className="lg:col-span-12 space-y-12 pt-10">
            <div className="text-center md:text-left space-y-3">
@@ -726,7 +745,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                     </div>
                  </div>
                  <div className="space-y-4">
-                    {actionPlan.environment_adjustments?.map((act: any, i: number) => (
+                    {actionPlan.environment_adjustments?.map((act: { task?: string } | string, i: number) => (
                       <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[2.5rem] flex gap-6 group hover:border-white/40 transition-all">
                          <div className="w-6 h-6 rounded-full border border-white/20 shrink-0 mt-1 flex items-center justify-center group-hover:bg-white/10 transition-colors">
                             <Globe className="w-3 h-3 text-slate-600" />
@@ -740,56 +759,42 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               </div>
            </div>
         </div>
+        </>
+        )}
 
-        {/* Premium AI Teaser (Innovative Monetization) */}
-        <Card className="lg:col-span-12 glass border-none rounded-[4rem] p-12 md:p-20 bg-linear-to-br from-indigo-500/10 via-background to-purple-500/5 relative overflow-hidden group border border-indigo-500/20">
-           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
-           <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-              <div className="flex-1 space-y-6">
-                 <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30 px-4 py-1.5 font-black uppercase text-[10px] tracking-[0.4em]">Neural Protocol Upgrade</Badge>
-                 <h2 className="text-5xl font-black text-white uppercase tracking-tighter leading-[0.9]">Deep AI <br />Insights.</h2>
-                 <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-2xl">
-                    Unlock the full potential of our Neural Engine. Get personalized, psychology-backed observations and long-term trajectory mapping powered by advanced GPT-4 architectures.
-                 </p>
-                 <div className="flex gap-4 pt-4">
-                    <Button variant="outline" className="h-16 px-10 rounded-2xl border-indigo-500/30 text-indigo-300 font-black uppercase text-xs tracking-widest hover:bg-indigo-500/10">Join the Waitlist</Button>
-                 </div>
-              </div>
-              <div className="w-64 h-64 bg-white/5 rounded-full border border-white/10 flex items-center justify-center relative">
-                 <div className="absolute inset-0 bg-indigo-500/10 animate-pulse rounded-full" />
-                 <Sparkles className="w-20 h-20 text-indigo-400 animate-bounce" />
-              </div>
-           </div>
-        </Card>
-
+        {(view === 'actions') && (
+        <>
         {/* Support Layers Grid */}
-        <div className="lg:col-span-8 grid md:grid-cols-2 gap-10">
-           {/* Section 6: Communication Guidance */}
+        <div className="lg:col-span-12 grid md:grid-cols-2 gap-10">
+           {/* Section 6: Communication Guidance (Relation Enhancements) */}
            <Card className="glass border-none rounded-[4rem] p-12 space-y-10">
               <div className="flex items-center gap-4">
-                 <MessageSquare className="w-8 h-8 text-indigo-400" />
-                 <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">Comms Guidance.</h3>
+                 <MessageSquare className="w-8 h-8 text-primary" />
+                 <div className="space-y-1">
+                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">Relation <br />Dynamics.</h3>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Bridging the Gap</p>
+                 </div>
               </div>
               <div className="space-y-8">
-                 <div className="space-y-3">
-                    <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Supportive Tone</p>
-                    <p className="text-2xl font-black text-white leading-tight italic decoration-emerald-500/20 underline underline-offset-8">
-                       &quot;{comms.recommended_tone}&quot;
+                 <div className="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4">
+                    <p className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                       <Zap className="w-3 h-3" /> Communication Style
                     </p>
+                     <p className="text-sm font-bold text-slate-300 leading-relaxed italic">&quot;{comms.recommended_tone}&quot;</p>
                  </div>
-                 <div className="grid grid-cols-2 gap-8">
+                 <div>
                     <div className="space-y-4">
-                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Encourage</p>
-                        <ul className="space-y-2">
-                           {Array.isArray(comms.to_encourage) && comms.to_encourage.map((item: string, i: number) => (
-                             <li key={i} className="text-xs font-bold text-slate-400 flex items-start gap-2">
+                       <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Effective Approaches</p>
+                       <ul className="space-y-2">
+                          {Array.isArray(comms.to_encourage) && comms.to_encourage.map((item: string, i: number) => (
+                            <li key={i} className="text-xs font-bold text-slate-400 flex items-start gap-2">
                                <CheckCircle2 className="w-3 h-3 text-emerald-500 mt-0.5" /> {item}
                             </li>
                           ))}
                        </ul>
                     </div>
-                    <div className="space-y-4">
-                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Avoid</p>
+                    <div className="space-y-4 pt-4">
+                       <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Ineffective Approaches</p>
                         <ul className="space-y-2">
                            {Array.isArray(comms.to_avoid) && comms.to_avoid.map((item: string, i: number) => (
                              <li key={i} className="text-xs font-bold text-slate-400 flex items-start gap-2">
@@ -798,13 +803,6 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                           ))}
                        </ul>
                     </div>
-                 </div>
-                 <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                       <Calendar className="w-4 h-4 text-primary" />
-                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Check-in Rhythm</span>
-                    </div>
-                    <Badge className="bg-primary/10 text-primary border-primary/20">{comms.frequency}</Badge>
                  </div>
               </div>
            </Card>
@@ -856,9 +854,32 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               </div>
            </Card>
         </div>
+        </>
+        )}
 
-        {/* Section 7: Next Check-in */}
-        <Card className="lg:col-span-4 glass border-none rounded-[4rem] p-12 bg-linear-to-b from-primary/20 to-background flex flex-col items-center justify-center text-center space-y-10 border border-primary/10 relative overflow-hidden group">
+        {(view === 'overview') && (
+        <>
+        {/* Premium AI Teaser (Innovative Monetization) */}
+        <Card className="lg:col-span-12 glass border-none rounded-[4rem] p-12 md:p-20 bg-linear-to-br from-indigo-500/10 via-background to-purple-500/5 relative overflow-hidden group border border-indigo-500/20">
+           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+           <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+              <div className="flex-1 space-y-6">
+                 <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30 px-4 py-1.5 font-black uppercase text-[10px] tracking-[0.4em]">Neural Protocol Upgrade</Badge>
+                 <h2 className="text-5xl font-black text-white uppercase tracking-tighter leading-[0.9]">Deep AI <br />Insights.</h2>
+                 <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-2xl">
+                    Unlock the full potential of our Neural Engine. Get personalized, psychology-backed observations and long-term trajectory mapping powered by advanced GPT-4 architectures.
+                 </p>
+                 <div className="flex gap-4 pt-4">
+                    <Button variant="outline" className="h-16 px-10 rounded-2xl border-indigo-500/30 text-indigo-300 font-black uppercase text-xs tracking-widest hover:bg-indigo-500/10">Join the Waitlist</Button>
+                 </div>
+              </div>
+              <div className="w-64 h-64 bg-white/5 rounded-full border border-white/10 flex items-center justify-center relative">
+                 <div className="absolute inset-0 bg-indigo-500/10 animate-pulse rounded-full" />
+                 <Sparkles className="w-20 h-20 text-indigo-400 animate-bounce" />
+              </div>
+           </div>
+        </Card>
+        <Card className="lg:col-span-12 glass border-none rounded-[4rem] p-12 bg-linear-to-b from-primary/20 to-background flex flex-col items-center justify-center text-center space-y-10 border border-primary/10 relative overflow-hidden group">
            <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors pointer-events-none" />
            <div className="relative z-10 space-y-6">
               <Calendar className="w-20 h-20 text-primary mx-auto opacity-20 group-hover:scale-110 transition-transform duration-700" />
@@ -867,7 +888,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
                  <p className="text-slate-400 font-medium text-sm">We recommend a full neural recalibration <br />in <span className="text-white font-black">2-4 weeks</span> for baseline trend-mapping.</p>
               </div>
            </div>
-           <div className="w-full space-y-4 relative z-10">
+           <div className="w-full max-w-md mx-auto space-y-4 relative z-10">
               <Button className="w-full h-20 rounded-[2.5rem] bg-white text-black font-black uppercase text-lg transition-all hover:scale-105 shadow-2xl">Schedule Recalibration</Button>
               <div className="flex justify-between gap-4">
                  <Button onClick={handleUpgrade} variant="outline" className="flex-1 h-14 rounded-2xl border-white/5 bg-white/5 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white transition-colors">Precision Upscale</Button>
@@ -875,6 +896,16 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               </div>
            </div>
         </Card>
+        </>
+        )}
+        
+        {view === 'settings' && (
+          <div className="lg:col-span-12 glass border-none rounded-[4rem] p-20 text-center space-y-8 min-h-[500px] flex flex-col items-center justify-center">
+             <Settings className="w-20 h-20 text-slate-700 mb-4" />
+             <h2 className="text-5xl font-black text-white uppercase tracking-tighter">System Settings</h2>
+             <p className="text-slate-500 font-bold uppercase tracking-widest">Configuration Panel Coming Soon</p>
+          </div>
+        )}
       </div>
 
       <style jsx global>{`

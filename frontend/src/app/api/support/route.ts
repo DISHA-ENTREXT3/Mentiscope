@@ -24,20 +24,28 @@ export async function POST(req: Request) {
       );
     }
 
-    // Save to Firestore
-    const { db } = await import("@/lib/firebase-admin");
-    if (!db) {
-      return NextResponse.json({ error: "Firebase DB not initialized" }, { status: 500 });
-    }
-    await db!.collection("support_requests").add({
-      product,
-      category,
-      message,
-      user_email,
-      created_at: new Date().toISOString()
+    // Forward to Python/Supabase backend
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "https://mentiscope-api.onrender.com"; // Fallback or env var
+    
+    const res = await fetch(`${backendUrl}/support`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
     });
 
-    return NextResponse.json({ status: "success", message: "Support request submitted." });
+    const data = await res.json();
+    
+    if (!res.ok) {
+       return NextResponse.json(
+         { error: data.detail || "Backend submission failed" },
+         { status: res.status }
+       );
+    }
+
+    return NextResponse.json(data, { status: res.status });
+
   } catch (error) {
     console.error("Support API Error:", error);
     return NextResponse.json(

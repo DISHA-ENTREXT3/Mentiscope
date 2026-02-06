@@ -647,7 +647,7 @@ export default function OnboardingForm() {
                     disabled={(stage === "parent" && step === 1) || loading}
                     className="px-12 h-18 rounded-3xl font-black uppercase tracking-[0.2em] text-slate-500 hover:bg-white/5 hover:text-white transition-all disabled:opacity-0"
                   >
-                    Regress
+                    Back
                   </Button>
                   
                   {stage !== "review" ? (
@@ -655,7 +655,7 @@ export default function OnboardingForm() {
                       onClick={handleNext}
                       className={`px-16 h-20 rounded-[2.5rem] font-black text-lg uppercase tracking-widest shadow-2xl transition-all hover:-translate-y-1 active:scale-95 group ${stage === 'parent' ? 'bg-primary text-primary-foreground shadow-primary/20' : stage === 'academic' ? 'bg-violet-600 text-white shadow-violet-500/20' : 'bg-accent text-white shadow-accent/20'}`}
                     >
-                      Sync Next
+                      Next
                       <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   ) : (
