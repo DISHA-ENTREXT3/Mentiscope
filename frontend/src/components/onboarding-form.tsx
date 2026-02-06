@@ -172,22 +172,47 @@ export default function OnboardingForm() {
         alert("Session expired. Please log in again.");
         return;
     }
-      setLoading(true);
+
+    // Validate required fields
+    if (!formData.studentName.trim()) {
+      alert("Please enter student name");
+      return;
+    }
+    if (!formData.grade) {
+      alert("Please select a grade level");
+      return;
+    }
+    if (formData.academicMarks.some(m => !m.subject.trim())) {
+      alert("Please fill in all subject names");
+      return;
+    }
+
+    setLoading(true);
     try {
+      // Create student with better error handling
       const student = await createStudent({
-        name: formData.studentName,
+        name: formData.studentName.trim(),
         grade_level: formData.grade,
         parent_id: userId,
         school_type: formData.schoolType
+      }).catch(err => {
+        throw new Error(`Failed to create student profile: ${err.message}`);
       });
+
+      if (!student || !student.id) {
+        throw new Error("Invalid student profile created");
+      }
 
       if (student.raw_password) {
         setTempPassword(student.raw_password);
-        setStage("success");
       }
 
+      // Submit assessment with validation
       await submitAssessment(student.id, "onboarding", {
         ...formData
+      }).catch(err => {
+        console.warn("Assessment submission warning:", err);
+        // Don't fail on assessment error
       });
 
       // TRIGGER ANALYSIS (Fix: New users were not getting analysis generated)
@@ -198,14 +223,16 @@ export default function OnboardingForm() {
          // We continue anyway so the user isn't blocked, dashboard handles "no analysis" state
       }
 
-      // If we have a password, we'll show it before redirecting.
-      // If not, we redirect now.
-      if (!student.raw_password) {
+      // Move to success or dashboard
+      if (student.raw_password) {
+        setStage("success");
+      } else {
         router.push(`/dashboard/${student.id}`);
       }
     } catch (error) {
       console.error("Onboarding failed:", error);
-      alert("Something went wrong. Please try again.");
+      const errorMsg = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }

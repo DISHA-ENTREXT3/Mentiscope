@@ -130,25 +130,51 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
           transition={{ delay: 0.4 }}
           className="space-y-8 text-foreground"
         >
-          <div 
+          <article 
             className="prose prose-invert prose-lg max-w-none
-            prose-headings:font-bold prose-headings:text-white prose-headings:mt-10 prose-headings:mb-4
-            prose-h2:text-3xl prose-h2:uppercase prose-h2:tracking-tight
-            prose-h3:text-xl prose-h3:text-primary prose-h3:uppercase 
-            prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:font-normal
-            prose-strong:text-foreground prose-strong:font-semibold
-            prose-li:text-muted-foreground prose-li:font-normal
-            prose-ol:text-muted-foreground prose-code:text-primary/80
+            prose-headings:font-bold prose-headings:text-white prose-headings:mt-12 prose-headings:mb-6
+            prose-h2:text-3xl prose-h2:capitalize prose-h2:tracking-normal prose-h2:font-bold
+            prose-h3:text-xl prose-h3:text-primary prose-h3:capitalize prose-h3:font-semibold
+            prose-p:text-slate-300 prose-p:leading-8 prose-p:font-normal prose-p:text-base
+            prose-strong:text-white prose-strong:font-semibold
+            prose-li:text-slate-300 prose-li:font-normal prose-li:text-base prose-li:my-2
+            prose-ol:my-6 prose-ul:my-6
+            prose-code:text-primary/80 prose-code:bg-black/20 prose-code:px-2 prose-code:py-1 prose-code:rounded
+            prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-slate-300
             dark"
             dangerouslySetInnerHTML={{ 
               __html: post.content
-                .replace(/\n\n/g, '</p><p class="mb-6">')
-                .replace(/\n/g, '<br />')
-                .replace(/## (.*)/g, '<h2 class="text-2xl md:text-3xl mt-10 mb-4 text-foreground font-bold uppercase tracking-tight">$1</h2>')
-                .replace(/### (.*)/g, '<h3 class="text-xl mt-8 mb-3 text-primary font-bold uppercase">$1</h3>')
-                .replace(/\*\*(.*)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
-                .replace(/^\s*-\s+/gm, '<li>')
-                .replace(/\s*$/gm, '</li>')
+                .split('\n\n')
+                .map((paragraph, i) => {
+                  if (paragraph.match(/^#{1,3}\s/)) {
+                    // Handle headings
+                    const match = paragraph.match(/^(#{1,3})\s(.*)/);
+                    if (!match) return paragraph;
+                    const level = match[1].length;
+                    const text = match[2];
+                    const tag = `h${level + 1}`;
+                    return `<${tag} class="${level === 1 ? 'text-3xl' : level === 2 ? 'text-2xl' : 'text-xl'} font-bold capitalize mt-8 mb-4">${text}</${tag}>`;
+                  } else if (paragraph.match(/^-\s/) || paragraph.match(/^\d+\.\s/)) {
+                    // Handle lists
+                    const isOrdered = paragraph.match(/^\d+\.\s/);
+                    const items = paragraph.split('\n').filter(l => l.trim());
+                    const listItems = items.map(item => {
+                      const text = item.replace(/^[-*]\s|^\d+\.\s/, '').trim();
+                      return `<li class="my-2">${text}</li>`;
+                    }).join('');
+                    return isOrdered ? `<ol class="list-decimal list-inside my-6">${listItems}</ol>` : `<ul class="list-disc list-inside my-6">${listItems}</ul>`;
+                  } else if (paragraph.trim()) {
+                    // Regular paragraphs
+                    const formatted = paragraph
+                      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>')
+                      .replace(/__(.*?)__/g, '<em class="italic">$1</em>')
+                      .replace(/`(.*?)`/g, '<code class="text-primary/80 bg-black/20 px-2 py-1 rounded">$1</code>');
+                    return `<p class="text-slate-300 leading-8 font-normal text-base my-4">${formatted}</p>`;
+                  }
+                  return '';
+                })
+                .filter(Boolean)
+                .join('')
             }}
           />
         </motion.div>

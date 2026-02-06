@@ -160,8 +160,8 @@ export function SupportChatbot() {
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-4 border-[#0a0f1c]" />
                 </div>
                 <div>
-                  <h4 className="text-white font-black uppercase text-xs tracking-widest">Neural Support</h4>
-                  <p className="text-primary text-[8px] font-black uppercase tracking-[0.2em]">Active Link v2.0</p>
+                  <h4 className="text-white font-black uppercase text-xs tracking-widest">Support</h4>
+                  <p className="text-primary text-[8px] font-black uppercase tracking-[0.2em]">Support Center v2.0</p>
                 </div>
               </div>
               <button 
@@ -177,18 +177,26 @@ export function SupportChatbot() {
               ref={scrollRef} // Reverted to correct ref
               className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
             >
-        {/* Intro Message */}
+    {/* Intro Message */}
         {messages.length === 0 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-xs text-slate-300 leading-relaxed font-medium">
-                Greetings. I am the Neural Support Assistant. Select a protocol to begin.
+                Hi there! What type of support do you need today? Select a category to proceed.
              </div>
              
              <div className="grid grid-cols-2 gap-2">
-                {["Account Access", "Billing Inquiry", "Report a Bug", "Feature Request"].map(topic => (
+                {["Account Access", "Billing Inquiry", "Technical Issue", "Feature Request", "General Question", "Feedback"].map(topic => (
                   <button
                     key={topic}
-                    onClick={() => setCategory(topic)}
+                    onClick={() => {
+                      setCategory(topic);
+                      setMessages(prev => [...prev, {
+                        id: Math.random().toString(36).substring(7),
+                        role: "user",
+                        content: `I need help with: ${topic}`,
+                        timestamp: new Date()
+                      }]);
+                    }}
                     className={`p-3 rounded-xl border text-[10px] font-black uppercase tracking-wider text-left transition-all ${
                       category === topic 
                         ? "bg-primary text-black border-primary"
@@ -250,7 +258,7 @@ export function SupportChatbot() {
                     disabled={isSubmitting || !supportEmail}
                     className="w-full bg-primary text-black font-black uppercase text-[10px] tracking-widest py-3 rounded-xl flex items-center justify-center gap-2"
                   >
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Transmit Transcript"}
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit Ticket"}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </motion.div>
@@ -265,7 +273,7 @@ export function SupportChatbot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  placeholder="Uplink message..."
+                  placeholder="Type your message..."
                   className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-xs font-black text-white focus:outline-none focus:ring-2 ring-primary/20 transition-all pr-14"
                 />
                 <button 

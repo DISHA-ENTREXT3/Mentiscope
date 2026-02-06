@@ -51,6 +51,7 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-10">
             <Link href="/how-it-works" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">How it works</Link>
             <Link href="/features" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Features</Link>
+            <Link href="/blog" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
             <Link href="/pricing" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
           </div>
 
@@ -133,9 +134,24 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="space-y-6"
+              className="space-y-6 flex flex-col items-center lg:items-start"
             >
-              <SubscribeSection variant="hero" />
+              {!user ? (
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-3 bg-primary text-black text-[10px] font-black uppercase tracking-widest px-10 py-4 rounded-2xl hover:scale-105 transition-all active:scale-95 shadow-[0_0_30px_rgba(135,255,200,0.4)] group"
+                >
+                  Subscribe to Get Started <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              ) : (
+                <Link
+                  href="/onboarding"
+                  className="inline-flex items-center gap-3 bg-primary text-black text-[10px] font-black uppercase tracking-widest px-10 py-4 rounded-2xl hover:scale-105 transition-all active:scale-95 shadow-[0_0_30px_rgba(135,255,200,0.4)] group"
+                >
+                  Get Started <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              )}
+              
               <div className="flex items-center gap-6 justify-center lg:justify-start">
                 <div className="flex -space-x-4">
                   {[1,2,3,4].map(i => (
