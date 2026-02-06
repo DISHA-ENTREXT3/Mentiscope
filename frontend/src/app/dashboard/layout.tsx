@@ -8,7 +8,7 @@ import { auth } from "@/lib/firebase";
 import { signOut, User } from "firebase/auth";
 import { 
   LayoutDashboard, LineChart, FileText, Settings, 
-  LogOut, Bell, Activity, Sparkles, Briefcase, Terminal,
+  LogOut, Bell, Activity, Sparkles, Terminal,
   Cpu
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";

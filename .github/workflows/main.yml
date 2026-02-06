@@ -33,6 +33,9 @@ jobs:
     - name: Type Checking
       run: npx tsc --noEmit
 
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
     - name: Run Tests
       run: npm test
       env:

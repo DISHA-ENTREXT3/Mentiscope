@@ -7,10 +7,11 @@ test('homepage has title', async ({ page }: { page: Page }) => {
 
 test('onboarding link works', async ({ page }: { page: Page }) => {
   await page.goto('/');
-  const onboardingLink = page.getByRole('link', { name: /Get Started|Start Onboarding/i });
-  const count = await onboardingLink.count();
-  if (count > 0) {
-    await onboardingLink.click();
-    await expect(page).toHaveURL(/.*onboarding/);
-  }
+  // Find the link/button that starts the process. Adjust the locator as needed for your specific design.
+  // Using a broader locator strategy to catch standard "Get Started" or "Begin" calls to action.
+  const onboardingLink = page.getByRole('link', { name: /Get Started|Start Onboarding|Begin/i }).first();
+  
+  await expect(onboardingLink).toBeVisible();
+  await onboardingLink.click();
+  await expect(page).toHaveURL(/.*onboarding/);
 });
