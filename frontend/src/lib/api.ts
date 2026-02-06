@@ -160,15 +160,22 @@ export async function triggerAnalysis(studentId: string): Promise<{ status: stri
         if (!assessmentDocs.empty) {
           const assessmentDoc = assessmentDocs.docs[0];
           const assessmentRef = doc(db, "assessments", assessmentDoc.id);
+          console.log(`[ANALYSIS] Updating assessment ${assessmentDoc.id} with analysis results...`);
           await updateDoc(assessmentRef, {
             analysis_results: data.data,
             status: 'analyzed',
             analyzed_at: Timestamp.now()
           });
-          console.log("Analysis successfully saved from frontend");
+          console.log("[ANALYSIS] ✅ Analysis successfully saved from frontend!");
+        } else {
+          console.warn("[ANALYSIS] ⚠️ No assessment found for student. Analysis not persisted.");
         }
       } catch (saveError) {
-        console.warn("Frontend save also failed, but analysis was generated:", saveError);
+        console.error("[ANALYSIS] ❌ Frontend save failed with error:", {
+          code: (saveError as any)?.code,
+          message: (saveError as any)?.message,
+          fullError: saveError
+        });
         // Don't throw - analysis was generated, just not persisted
       }
     }
