@@ -2,7 +2,7 @@ import { db, auth } from "./firebase";
 import { collection, addDoc, doc, getDoc, query, where, getDocs, Timestamp, updateDoc } from "firebase/firestore";
 import { Student } from "@/types";
 
-export async function createStudent(data: { name: string, grade_level: string, parent_id: string, school_type?: string }): Promise<Student & { raw_password?: string }> {
+export async function createStudent(data: { name: string, grade_level: string, parent_id: string, school_type?: string }): Promise<Student> {
   const response = await fetch("/api/students", {
     method: "POST",
     headers: {

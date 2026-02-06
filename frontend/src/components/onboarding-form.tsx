@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { createStudent, submitAssessment, triggerAnalysis } from "@/lib/api";
 import { auth } from "@/lib/firebase";
 
-type Stage = "parent" | "academic" | "student" | "review" | "success";
+type Stage = "parent" | "academic" | "student" | "review";
 
 interface AcademicMark {
   subject: string;
@@ -77,7 +77,6 @@ export default function OnboardingForm() {
   const [stage, setStage] = useState<Stage>("parent");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -203,10 +202,6 @@ export default function OnboardingForm() {
         throw new Error("Invalid student profile created");
       }
 
-      if (student.raw_password) {
-        setTempPassword(student.raw_password);
-      }
-
       // Submit assessment with validation
       await submitAssessment(student.id, "onboarding", {
         ...formData
@@ -226,12 +221,8 @@ export default function OnboardingForm() {
          // Dashboard will show "Analysis pending..." state
       }
 
-      // Move to success or dashboard
-      if (student.raw_password) {
-        setStage("success");
-      } else {
-        router.push(`/dashboard/${student.id}`);
-      }
+      // Move to dashboard after successful onboarding
+      router.push(`/dashboard/${student.id}`);
     } catch (error) {
       console.error("Onboarding failed:", error);
       const errorMsg = error instanceof Error ? error.message : "Something went wrong. Please try again.";
@@ -239,48 +230,6 @@ export default function OnboardingForm() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const renderSuccess = () => {
-    return (
-      <div className="space-y-12 text-center animate-in fade-in zoom-in duration-700">
-        <div className="space-y-6">
-          <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-8">
-            <Zap className="w-12 h-12 text-primary" />
-          </div>
-          <h2 className="text-5xl font-black text-white uppercase tracking-tighter leading-none">Neural Link <br />Established.</h2>
-          <p className="text-slate-400 font-medium max-w-md mx-auto">Student profile has been encrypted and integrated. Provide these credentials to the student for independent uplink.</p>
-        </div>
-
-        <div className="grid gap-6 p-10 bg-white/5 rounded-[3rem] border border-white/10 relative overflow-hidden">
-          <div className="absolute inset-0 bg-primary/5 animate-pulse" />
-          <div className="relative z-10 space-y-8">
-            <div className="space-y-3">
-              <Label className="uppercase text-[10px] font-black tracking-[0.4em] text-primary">Student Neural ID</Label>
-              <div className="text-3xl font-black text-white tracking-widest bg-white/5 py-4 rounded-2xl border border-white/10">
-                PENDING_ID
-              </div>
-            </div>
-            <div className="space-y-3">
-              <Label className="uppercase text-[10px] font-black tracking-[0.4em] text-primary">Access Key (10 Chars)</Label>
-              <div className="text-3xl font-black text-primary tracking-[0.5em] bg-primary/10 py-4 rounded-2xl border border-primary/20">
-                {tempPassword}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-           <Button 
-            onClick={() => router.push('/dashboard')}
-            className="w-full h-20 bg-primary text-primary-foreground rounded-[2.5rem] font-black text-xl uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all"
-           >
-             Enter Mainframe
-           </Button>
-           <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Store these securely. Hashed encryption prevents recovery.</p>
-        </div>
-      </div>
-    );
   };
 
   const addSubject = () => {
@@ -587,12 +536,30 @@ export default function OnboardingForm() {
           </div>
           <div className="space-y-12 max-w-2xl mx-auto">
              {[
-               { id: 'studentUnderstanding' as const, label: 'I understand what we learn' },
-               { id: 'studentConfidence' as const, label: 'I feel confident during tests' },
+               { id: 'studentUnderstanding' as const, label: 'I understand what we learn', desc: 'How well do you grasp the concepts taught in class?' },
+               { id: 'studentConfidence' as const, label: 'I feel confident during tests', desc: 'How sure are you when taking exams or quizzes?' },
              ].map((item) => (
-               <div key={item.id} className="space-y-6 bg-white/2 rounded-3xl p-8 border border-white/5">
-                  <Label className="text-lg font-black text-white px-2 uppercase">{item.label}</Label>
-                  <Slider min={1} max={5} step={1} value={[formData[item.id]]} onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} />
+               <div key={item.id} className="space-y-8">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label className="text-xl font-black text-white uppercase tracking-tight">{item.label}</Label>
+                      <span className="text-3xl font-black text-accent">{formData[item.id]}/5</span>
+                    </div>
+                    <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-lg">{item.desc}</p>
+                  </div>
+                  <Slider 
+                    min={1} max={5} step={1} 
+                    value={[formData[item.id]]} 
+                    onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} 
+                    className="py-4"
+                  />
+                  <div className="grid grid-cols-5 gap-2 text-[9px] font-semibold text-slate-500 uppercase tracking-wider text-center">
+                    <div className={formData[item.id] === 1 ? 'text-accent' : ''}>Rarely</div>
+                    <div className={formData[item.id] === 2 ? 'text-accent' : ''}>Sometimes</div>
+                    <div className={formData[item.id] === 3 ? 'text-accent' : ''}>Often</div>
+                    <div className={formData[item.id] === 4 ? 'text-accent' : ''}>Usually</div>
+                    <div className={formData[item.id] === 5 ? 'text-accent' : ''}>Always</div>
+                  </div>
                </div>
              ))}
           </div>
@@ -604,17 +571,31 @@ export default function OnboardingForm() {
             <Badge className="bg-accent/10 text-accent border-accent/20 px-4 py-1 font-black text-[10px] tracking-[0.3em] uppercase">Student Phase: Mindset</Badge>
             <h2 className="text-5xl md:text-6xl font-black text-gradient tracking-tighter uppercase leading-none">Focus & <br />Energy.</h2>
           </div>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="space-y-12 max-w-2xl mx-auto">
              {[
-               { id: 'studentAttention' as const, label: 'Staying Focused', icon: <Zap className="w-8 h-8 text-amber-400" /> },
-               { id: 'studentRecall' as const, label: 'Remembering Later', icon: <Brain className="w-8 h-8 text-indigo-400" /> },
+               { id: 'studentAttention' as const, label: 'Staying Focused', desc: 'How well can you concentrate without getting distracted?' },
+               { id: 'studentRecall' as const, label: 'Remembering Later', desc: 'How easily can you recall what you learned?' },
              ].map(item => (
-               <div key={item.id} className="bg-white/5 p-8 rounded-[3rem] border border-white/5 space-y-8 text-center">
-                  <div className="mx-auto">{item.icon}</div>
-                  <div className="space-y-4">
-                     <Label className="text-sm font-black text-white uppercase tracking-widest leading-tight">{item.label}</Label>
-                     <div className="text-4xl font-black text-accent">{formData[item.id]}/5</div>
-                     <Slider min={1} max={5} step={1} value={[formData[item.id]]} onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} />
+               <div key={item.id} className="space-y-8">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label className="text-xl font-black text-white uppercase tracking-tight">{item.label}</Label>
+                      <span className="text-3xl font-black text-accent">{formData[item.id]}/5</span>
+                    </div>
+                    <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-lg">{item.desc}</p>
+                  </div>
+                  <Slider 
+                    min={1} max={5} step={1} 
+                    value={[formData[item.id]]} 
+                    onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} 
+                    className="py-4"
+                  />
+                  <div className="grid grid-cols-5 gap-2 text-[9px] font-semibold text-slate-500 uppercase tracking-wider text-center">
+                    <div className={formData[item.id] === 1 ? 'text-accent' : ''}>Rarely</div>
+                    <div className={formData[item.id] === 2 ? 'text-accent' : ''}>Sometimes</div>
+                    <div className={formData[item.id] === 3 ? 'text-accent' : ''}>Often</div>
+                    <div className={formData[item.id] === 4 ? 'text-accent' : ''}>Usually</div>
+                    <div className={formData[item.id] === 5 ? 'text-accent' : ''}>Always</div>
                   </div>
                </div>
              ))}
@@ -627,21 +608,34 @@ export default function OnboardingForm() {
             <Badge className="bg-accent/10 text-accent border-accent/20 px-4 py-1 font-black text-[10px] tracking-[0.3em] uppercase">Student Phase: Effort</Badge>
             <h2 className="text-5xl md:text-6xl font-black text-gradient tracking-tighter uppercase leading-none">Pride in <br />Work.</h2>
           </div>
-          <div className="max-w-xl mx-auto">
-             <div className="space-y-12">
-                {[
-                  { id: 'studentStressLevel' as const, label: 'Stress Level' },
-                  { id: 'studentEffortPride' as const, label: 'Pride in Effort' },
-                ].map(item => (
-                  <div key={item.id} className="space-y-6">
-                     <div className="flex justify-between items-center px-4">
-                       <Label className="text-lg font-black text-white uppercase">{item.label}</Label>
-                       <span className="text-2xl font-black text-accent">{formData[item.id]}/5</span>
-                     </div>
-                     <Slider min={1} max={5} step={1} value={[formData[item.id]]} onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} />
+          <div className="space-y-12 max-w-2xl mx-auto">
+             {[
+               { id: 'studentStressLevel' as const, label: 'Stress Level', desc: 'How often do you feel stressed about schoolwork?' },
+               { id: 'studentEffortPride' as const, label: 'Pride in Effort', desc: 'How proud are you of the work you put in?' },
+             ].map(item => (
+               <div key={item.id} className="space-y-8">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label className="text-xl font-black text-white uppercase tracking-tight">{item.label}</Label>
+                      <span className="text-3xl font-black text-accent">{formData[item.id]}/5</span>
+                    </div>
+                    <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-lg">{item.desc}</p>
                   </div>
-                ))}
-             </div>
+                  <Slider 
+                    min={1} max={5} step={1} 
+                    value={[formData[item.id]]} 
+                    onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} 
+                    className="py-4"
+                  />
+                  <div className="grid grid-cols-5 gap-2 text-[9px] font-semibold text-slate-500 uppercase tracking-wider text-center">
+                    <div className={formData[item.id] === 1 ? 'text-accent' : ''}>Rarely</div>
+                    <div className={formData[item.id] === 2 ? 'text-accent' : ''}>Sometimes</div>
+                    <div className={formData[item.id] === 3 ? 'text-accent' : ''}>Often</div>
+                    <div className={formData[item.id] === 4 ? 'text-accent' : ''}>Usually</div>
+                    <div className={formData[item.id] === 5 ? 'text-accent' : ''}>Always</div>
+                  </div>
+               </div>
+             ))}
           </div>
         </div>
       );
@@ -714,10 +708,8 @@ export default function OnboardingForm() {
               {stage === "academic" && renderAcademicStep()}
               {stage === "student" && renderStudentStep()}
               {stage === "review" && renderReview()}
-              {stage === "success" && renderSuccess()}
 
-              {stage !== "success" && (
-                <div className="mt-20 flex justify-between items-center px-4">
+              <div className="mt-20 flex justify-between items-center px-4">
                   <Button 
                     variant="ghost" 
                     onClick={handleBack} 
@@ -745,7 +737,6 @@ export default function OnboardingForm() {
                     </Button>
                   )}
                 </div>
-              )}
             </CardContent>
           </Card>
         </motion.div>
