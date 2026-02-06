@@ -174,6 +174,19 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
     fetchData();
   }, [fetchData]);
 
+  // Auto-trigger analysis if no analysis results exist yet
+  useEffect(() => {
+    if (!loading && student && student.assessments && student.assessments.length > 0) {
+      const latestAssessment = student.assessments[0];
+      const hasAnalysis = latestAssessment?.analysis_results;
+      
+      if (!hasAnalysis && !analyzing) {
+        console.log("No analysis found, auto-triggering...");
+        handleTriggerAnalysis();
+      }
+    }
+  }, [loading, student, analyzing]);
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background space-y-6">
       <motion.div 
@@ -243,24 +256,25 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
   ];
 
   return (
-    <div className="max-w-[1700px] mx-auto px-6 py-12 space-y-16 animate-in fade-in duration-1000">
+    <div className="max-w-[1700px] mx-auto px-4 md:px-6 py-8 md:py-12 space-y-12 md:space-y-16 animate-in fade-in duration-1000">
       
       {/* Header Architecture */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-             <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-2 font-black text-[10px] tracking-[0.4em] uppercase">Standard Protocol Active</Badge>
-             <div className="flex items-center gap-2 text-slate-500 font-bold text-[10px] uppercase tracking-widest">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-10">
+        <div className="space-y-4 md:space-y-6 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
+             <Badge className="bg-primary/10 text-primary border-primary/20 px-3 md:px-4 py-1.5 md:py-2 font-black text-[9px] md:text-[10px] tracking-[0.3em] md:tracking-[0.4em] uppercase whitespace-nowrap">Standard Protocol Active</Badge>
+             <div className="flex items-center gap-2 text-slate-500 font-bold text-[8px] md:text-[10px] uppercase tracking-widest">
                 <span className={`w-2 h-2 rounded-full ${(syncing || analyzing) ? 'bg-amber-400 animate-ping' : 'bg-primary animate-pulse'}`} />
-                {(syncing || analyzing) ? 'Synthesizing Telemetry...' : 'Standard Mapping Enabled'}
+                <span className="hidden xs:inline">{(syncing || analyzing) ? 'Synthesizing Telemetry...' : 'Standard Mapping Enabled'}</span>
+                <span className="xs:hidden">{(syncing || analyzing) ? 'Syncing...' : 'Active'}</span>
              </div>
           </div>
           <div className="space-y-2">
-            <h1 className="text-7xl md:text-8xl font-black text-white tracking-tighter uppercase leading-[0.8] mix-blend-lighten">Growth <br />Architecture.</h1>
-            <p className="text-slate-400 font-medium text-2xl uppercase tracking-tighter">Holistic Mapping: <span className="text-white font-black">{student.name}</span></p>
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-[0.8] mix-blend-lighten">Growth <br />Architecture.</h1>
+            <p className="text-slate-400 font-medium text-sm md:text-2xl uppercase tracking-tighter">Holistic Mapping: <span className="text-white font-black">{student.name}</span></p>
           </div>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-3 md:gap-4 w-full md:w-auto flex-wrap md:flex-nowrap">
           <Button 
             onClick={fetchData}
             disabled={syncing || analyzing}
@@ -281,12 +295,12 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-10">
+      <div className="grid md:grid-cols-12 gap-6 md:gap-8 lg:gap-10">
 
         {(view === 'overview') && (
         <>
         {/* Predictive Trajectory Card (Innovative) */  }
-        <Card className="lg:col-span-8 glass border-none rounded-[4rem] p-12 bg-linear-to-br from-primary/5 to-background border border-white/5 relative overflow-hidden group">
+        <Card className="md:col-span-12 lg:col-span-8 glass border-none rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-6 md:p-10 lg:p-12 bg-linear-to-br from-primary/5 to-background border border-white/5 relative overflow-hidden group">
            <div className="relative z-10 space-y-8">
               <div className="flex justify-between items-start">
                  <div className="space-y-2">
@@ -345,7 +359,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
         </Card>
 
         {/* Synergy Meter (Innovative Perception Gap) */  }
-        <Card className="lg:col-span-4 glass border-none rounded-[4rem] p-12 bg-linear-to-b from-accent/5 to-background border border-white/5 flex flex-col justify-between">
+        <Card className="md:col-span-12 lg:col-span-4 glass border-none rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-6 md:p-10 lg:p-12 bg-linear-to-b from-accent/5 to-background border border-white/5 flex flex-col justify-between">
            <div className="space-y-8">
               <div className="space-y-2">
                  <Badge className="bg-accent/20 text-accent px-3 uppercase text-[9px] tracking-widest font-black">Parent-Student Synergy</Badge>
@@ -436,42 +450,42 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
         {(view === 'trends') && (
         <>
         {/* Existing Growth Matrix Section */}
-        <Card className="lg:col-span-8 glass border-none rounded-[4rem] p-12 space-y-12">
-           <div className="flex justify-between items-end">
-              <div className="space-y-3">
-                 <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 px-3 uppercase text-[9px] tracking-widest">Whole-Child Model</Badge>
-                 <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Growth Matrix.</h2>
+        <Card className="md:col-span-12 lg:col-span-8 glass border-none rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-6 md:p-10 lg:p-12 space-y-8 md:space-y-12">
+           <div className="flex flex-col sm:flex-row justify-between items-start gap-4 md:gap-0">
+              <div className="space-y-2 md:space-y-3">
+                 <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 px-3 py-1 md:py-1.5 uppercase text-[8px] md:text-[9px] tracking-widest">Whole-Child Model</Badge>
+                 <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">Growth Matrix.</h2>
               </div>
-              <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Across 8 Core Domains</p>
+              <p className="text-slate-500 font-bold uppercase text-[8px] md:text-[10px] tracking-widest whitespace-nowrap">Across 8 Core Domains</p>
            </div>
-           <div className="grid md:grid-cols-2 gap-6">
+           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
               {dimensions.map((dim: Dimension, i: number) => (
-                <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[2.5rem] flex items-center justify-between group hover:bg-white/10 transition-all">
-                   <div className="space-y-4 flex-1">
-                      <div className="flex items-center gap-4">
-                         <div className={`p-3 rounded-xl bg-white/5 ${getStatusColor(dim.status)} border-none shadow-2xl`}>
-                            {i % 2 === 0 ? <Zap className="w-5 h-5" /> : <Activity className="w-5 h-5" />}
+                <div key={i} className="bg-white/5 border border-white/5 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-between group hover:bg-white/10 transition-all gap-4">
+                   <div className="space-y-3 md:space-y-4 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 md:gap-4">
+                         <div className={`p-2 md:p-3 rounded-lg md:rounded-xl bg-white/5 ${getStatusColor(dim.status)} border-none shadow-2xl shrink-0`}>
+                            {i % 2 === 0 ? <Zap className="w-4 md:w-5 h-4 md:h-5" /> : <Activity className="w-4 md:w-5 h-4 md:h-5" />}
                          </div>
-                         <h4 className="text-lg font-black text-white uppercase tracking-tight leading-none">{dim.name}</h4>
+                         <h4 className="text-base md:text-lg font-black text-white uppercase tracking-tight leading-none break-words">{dim.name}</h4>
                       </div>
-                      <div className="flex items-center gap-3">
-                         <Badge className={`px-4 py-1.5 rounded-full font-black text-[9px] tracking-widest uppercase border ${getStatusColor(dim.status)}`}>
+                      <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                         <Badge className={`px-3 py-1 md:px-4 md:py-1.5 rounded-full font-black text-[8px] md:text-[9px] tracking-widest uppercase border ${getStatusColor(dim.status)}`}>
                             {dim.status}
                          </Badge>
-                         <div className="flex items-center gap-1.5">
+                         <div className="flex items-center gap-1">
                             {getTrendIcon(dim.trend)}
-                            <span className="text-[10px] font-bold text-slate-500 uppercase">{dim.trend}</span>
+                            <span className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase">{dim.trend}</span>
                          </div>
                       </div>
                       {/* Dimension Scientific Backing */}
                       {dim.scientific_backing && (
-                         <div className="pt-2 flex items-start gap-2 max-w-[200px]">
+                         <div className="pt-2 flex items-start gap-2">
                             <Globe className="w-3 h-3 text-primary/40 shrink-0 mt-0.5" />
-                            <p className="text-[10px] text-slate-500 italic leading-tight">{dim.scientific_backing}</p>
+                            <p className="text-[8px] md:text-[10px] text-slate-500 italic leading-tight">{dim.scientific_backing}</p>
                          </div>
                       )}
                    </div>
-                   <div className="w-16 h-16 rounded-full border-4 border-white/5 flex items-center justify-center relative">
+                   <div className="w-12 md:w-16 h-12 md:h-16 rounded-full border-4 border-white/5 flex items-center justify-center relative shrink-0">
                       <svg className="absolute inset-0 w-full h-full -rotate-90">
                          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-white/5" />
                          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray={`${dim.score * 1.76} 176`} className="text-primary" />
@@ -484,17 +498,17 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
         </Card>
 
         {/* Cognitive Topology - Radar */}
-        <Card className="lg:col-span-4 glass border-none rounded-[4rem] p-12 flex flex-col justify-between space-y-12">
-           <div className="space-y-3">
-              <Badge className="bg-accent/10 text-accent border-accent/20 px-3 uppercase text-[9px] tracking-widest">Neural Topology</Badge>
-              <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Processor <br />Balance.</h3>
+        <Card className="md:col-span-12 lg:col-span-4 glass border-none rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-6 md:p-10 lg:p-12 flex flex-col justify-between space-y-8 md:space-y-12">
+           <div className="space-y-2 md:space-y-3">
+              <Badge className="bg-accent/10 text-accent border-accent/20 px-3 py-1 md:py-1.5 uppercase text-[8px] md:text-[9px] tracking-widest">Neural Topology</Badge>
+              <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Processor <br />Balance.</h3>
            </div>
            
-           <div className="flex-1 flex items-center justify-center bg-white/5 rounded-[3.5rem] border border-white/5 relative p-4 min-h-[350px]">
-              <ResponsiveContainer width="100%" height={320} minHeight={320}>
+           <div className="flex-1 flex items-center justify-center bg-white/5 rounded-[2rem] md:rounded-[3.5rem] border border-white/5 relative p-3 md:p-4 min-h-[280px] md:min-h-[350px]">
+              <ResponsiveContainer width="100%" height={300} minHeight={300}>
                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={dimensions.map((d: Dimension) => ({ subject: d.name.split(' ')[0], A: d.score }))}>
                     <PolarGrid stroke="rgba(255,255,255,0.05)" />
-                    <PolarAngleAxis dataKey="subject" stroke="#666" fontSize={9} fontWeight="black" />
+                    <PolarAngleAxis dataKey="subject" stroke="#666" fontSize={8} fontWeight="black" />
                     <Radar name="Student" dataKey="A" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.4} />
                     <Tooltip contentStyle={{ backgroundColor: '#111', border: 'none', borderRadius: '1rem', fontWeight: 'bold' }} />
                  </RadarChart>
@@ -502,38 +516,38 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border border-white/5 rounded-full pointer-events-none opacity-20" />
            </div>
 
-           <div className="space-y-4">
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Top Proficiency Pillars</p>
+           <div className="space-y-3 md:space-y-4">
+              <p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Top Proficiency Pillars</p>
               <div className="flex flex-wrap justify-center gap-2">
                  {strengths.slice(0, 3).map((s: Strength, i:number) => (
-                   <span key={i} className="px-4 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-[9px] font-black uppercase tracking-widest">{s.title}</span>
+                   <span key={i} className="px-3 py-1.5 md:px-4 md:py-2 bg-primary/10 text-primary border border-primary/20 rounded-lg md:rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest">{s.title}</span>
                  ))}
               </div>
            </div>
         </Card>
 
         {/* Strengths & Support areas */}
-        <div className="lg:col-span-12 grid md:grid-cols-2 gap-10">
+        <div className="md:col-span-12 lg:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
            {/* Section 2: Strengths */}
-           <div className="space-y-8">
-              <div className="flex items-center gap-4">
-                 <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-400">
-                    <CheckCircle2 className="w-6 h-6" />
+           <div className="space-y-6 md:space-y-8">
+              <div className="flex items-center gap-3 md:gap-4">
+                 <div className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-emerald-500/10 text-emerald-400">
+                    <CheckCircle2 className="w-5 md:w-6 h-5 md:h-6" />
                  </div>
-                 <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Leverage Points.</h3>
+                 <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Leverage Points.</h3>
               </div>
-              <div className="grid gap-6">
+              <div className="grid gap-4 md:gap-6">
                  {strengths.map((s: Strength, i: number) => (
-                   <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[2.5rem] space-y-4 hover:border-emerald-500/30 transition-all">
-                      <h4 className="text-xl font-black text-white uppercase">{s.title}</h4>
-                      <p className="text-slate-500 font-medium text-sm leading-relaxed">{s.explanation}</p>
+                   <div key={i} className="bg-white/5 border border-white/5 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] space-y-3 md:space-y-4 hover:border-emerald-500/30 transition-all">
+                      <h4 className="text-lg md:text-xl font-black text-white uppercase">{s.title}</h4>
+                      <p className="text-slate-500 font-medium text-sm md:text-base leading-relaxed">{s.explanation}</p>
                    </div>
                  ))}
               </div>
            </div>
 
            {/* Section 3: Areas to Watch */}
-           <div className="space-y-8">
+           <div className="space-y-6 md:space-y-8">
               <div className="flex items-center gap-4">
                  <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-400">
                     <AlertCircle className="w-6 h-6" />

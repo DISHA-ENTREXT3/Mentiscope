@@ -10,7 +10,7 @@ import { FeaturesSection } from "@/components/features-section";
 import { FAQSection } from "@/components/faq-section";
 import { SupportChatbot } from "@/components/support-chatbot";
 import { motion } from "framer-motion";
-import { Brain, Sparkles, Zap, Shield, ChevronRight } from "lucide-react";
+import { Brain, Sparkles, Zap, Shield, ChevronRight, Twitter, Linkedin, Facebook, Instagram, Youtube } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -134,23 +134,34 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="space-y-6 flex flex-col items-center lg:items-start"
+              className="space-y-8 flex flex-col items-center lg:items-start"
             >
-              {!user ? (
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center gap-3 bg-primary text-black text-[10px] font-black uppercase tracking-widest px-10 py-4 rounded-2xl hover:scale-105 transition-all active:scale-95 shadow-[0_0_30px_rgba(135,255,200,0.4)] group"
-                >
-                  Subscribe to Get Started <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              ) : (
-                <Link
-                  href="/onboarding"
-                  className="inline-flex items-center gap-3 bg-primary text-black text-[10px] font-black uppercase tracking-widest px-10 py-4 rounded-2xl hover:scale-105 transition-all active:scale-95 shadow-[0_0_30px_rgba(135,255,200,0.4)] group"
-                >
-                  Get Started <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              )}
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-3 bg-primary text-black text-[10px] font-black uppercase tracking-widest px-10 py-4 rounded-2xl hover:scale-105 transition-all active:scale-95 shadow-[0_0_30px_rgba(135,255,200,0.4)] group"
+              >
+                Subscribe Now <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              {/* Social Media Icons */}
+              <div className="flex items-center gap-4">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Follow Us:</span>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Follow on Twitter">
+                  <Twitter className="w-4 h-4" />
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Connect on LinkedIn">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Like on Facebook">
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Follow on Instagram">
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Subscribe on YouTube">
+                  <Youtube className="w-4 h-4" />
+                </a>
+              </div>
               
               <div className="flex items-center gap-6 justify-center lg:justify-start">
                 <div className="flex -space-x-4">
@@ -243,6 +254,23 @@ export default function Home() {
             <p className="text-muted-foreground font-medium leading-relaxed">
               Helping children reach their potential through data-driven learning insights.
             </p>
+            <div className="flex items-center gap-4">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Follow us on Twitter">
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Connect on LinkedIn">
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Like us on Facebook">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Follow us on Instagram">
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Subscribe on YouTube">
+                <Youtube className="w-5 h-5" />
+              </a>
+            </div>
           </div>
           
           <div className="space-y-6">

@@ -362,6 +362,13 @@ export default function OnboardingForm() {
                     onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} 
                     className="py-4"
                   />
+                  <div className="grid grid-cols-5 gap-2 text-[9px] font-semibold text-slate-500 uppercase tracking-wider text-center">
+                    <div className={formData[item.id] === 1 ? 'text-primary' : ''}>Rarely</div>
+                    <div className={formData[item.id] === 2 ? 'text-primary' : ''}>Sometimes</div>
+                    <div className={formData[item.id] === 3 ? 'text-primary' : ''}>Often</div>
+                    <div className={formData[item.id] === 4 ? 'text-primary' : ''}>Usually</div>
+                    <div className={formData[item.id] === 5 ? 'text-primary' : ''}>Always</div>
+                  </div>
                </div>
              ))}
           </div>
@@ -385,6 +392,13 @@ export default function OnboardingForm() {
                      <span className="text-2xl font-black text-primary">{formData[item.id]}/5</span>
                   </div>
                   <Slider min={1} max={5} step={1} value={[formData[item.id]]} onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} />
+                  <div className="grid grid-cols-5 gap-2 text-[9px] font-semibold text-slate-500 uppercase tracking-wider text-center">
+                    <div className={formData[item.id] === 1 ? 'text-primary' : ''}>Very Low</div>
+                    <div className={formData[item.id] === 2 ? 'text-primary' : ''}>Low</div>
+                    <div className={formData[item.id] === 3 ? 'text-primary' : ''}>Medium</div>
+                    <div className={formData[item.id] === 4 ? 'text-primary' : ''}>High</div>
+                    <div className={formData[item.id] === 5 ? 'text-primary' : ''}>Very High</div>
+                  </div>
                </div>
              ))}
           </div>
@@ -408,6 +422,13 @@ export default function OnboardingForm() {
                      <Label className="text-sm font-black text-white uppercase tracking-widest leading-tight">{item.label}</Label>
                      <div className="text-4xl font-black text-primary">{formData[item.id]}/5</div>
                      <Slider min={1} max={5} step={1} value={[formData[item.id]]} onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} />
+                     <div className="flex text-[8px] font-semibold text-slate-500 uppercase tracking-wider gap-1 justify-between">
+                       <span className={formData[item.id] === 1 ? 'text-primary' : ''}>Poor</span>
+                       <span className={formData[item.id] === 2 ? 'text-primary' : ''}>Fair</span>
+                       <span className={formData[item.id] === 3 ? 'text-primary' : ''}>Good</span>
+                       <span className={formData[item.id] === 4 ? 'text-primary' : ''}>V.Good</span>
+                       <span className={formData[item.id] === 5 ? 'text-primary' : ''}>Excellent</span>
+                     </div>
                   </div>
                </div>
              ))}
@@ -432,6 +453,13 @@ export default function OnboardingForm() {
                        <span className="text-xl font-black text-primary">{formData[item.id]}/5</span>
                     </div>
                     <Slider min={1} max={5} step={1} value={[formData[item.id]]} onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} />
+                    <div className="grid grid-cols-5 gap-2 text-[8px] font-semibold text-slate-500 uppercase tracking-wider text-center">
+                      <div className={formData[item.id] === 1 ? 'text-primary' : ''}>Very Low</div>
+                      <div className={formData[item.id] === 2 ? 'text-primary' : ''}>Low</div>
+                      <div className={formData[item.id] === 3 ? 'text-primary' : ''}>Medium</div>
+                      <div className={formData[item.id] === 4 ? 'text-primary' : ''}>High</div>
+                      <div className={formData[item.id] === 5 ? 'text-primary' : ''}>Very High</div>
+                    </div>
                  </div>
                ))}
              </div>
@@ -446,6 +474,13 @@ export default function OnboardingForm() {
                       <span>{formData[item.id]}/5</span>
                     </div>
                     <Slider min={1} max={5} step={1} value={[formData[item.id]]} onValueChange={([v]: number[]) => setFormData({...formData, [item.id]: v})} />
+                    <div className="flex text-[7px] font-semibold text-slate-600 uppercase tracking-wider gap-1 justify-between">
+                      <span className={formData[item.id] === 1 ? 'text-primary' : ''}>Low</span>
+                      <span className={formData[item.id] === 2 ? 'text-primary' : ''}>Fair</span>
+                      <span className={formData[item.id] === 3 ? 'text-primary' : ''}>Good</span>
+                      <span className={formData[item.id] === 4 ? 'text-primary' : ''}>High</span>
+                      <span className={formData[item.id] === 5 ? 'text-primary' : ''}>Excellent</span>
+                    </div>
                   </div>
                 ))}
              </div>

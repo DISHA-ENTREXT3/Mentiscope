@@ -1,20 +1,63 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { getBlogBySlug } from "@/data/blog-posts";
-import { Brain, Clock, ChevronLeft, ChevronDown, Twitter, Linkedin, ArrowLeft } from "lucide-react";
+import { Brain, Clock, ChevronLeft, ChevronDown, Twitter, Linkedin, ArrowLeft, Share2, Copy, Facebook, Mail } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
 import { SubscribeSection } from "@/components/subscribe-section";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
   const resolvedParams = use(params);
   const post = getBlogBySlug(resolvedParams.slug);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-8">
+          <h1 className="text-6xl font-black text-foreground uppercase tracking-tighter">Page Not Found.</h1>
+          <p className="text-muted-foreground font-medium tracking-widest uppercase text-xs">The article you are looking for does not exist.</p>
+          <Link href="/blog" className="inline-block px-10 py-5 bg-primary text-black font-black uppercase text-xs tracking-[0.3em] rounded-2xl">
+            Back to Blog
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const blogUrl = typeof window !== 'undefined' ? `${window.location.origin}/blog/${post.slug}` : '';
+  
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(blogUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareToTwitter = () => {
+    const text = encodeURIComponent(`Check out: ${post.title}\n\n${post.excerpt}`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(blogUrl)}`, '_blank');
+  };
+
+  const shareToFacebook = () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(blogUrl)}`, '_blank');
+  };
+
+  const shareToLinkedIn = () => {
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(blogUrl)}`, '_blank');
+  };
+
+  const shareViaEmail = () => {
+    const subject = encodeURIComponent(`Check out this article: ${post.title}`);
+    const body = encodeURIComponent(`${post.title}\n\n${post.excerpt}\n\nRead more: ${blogUrl}`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  };
 
   if (!post) {
     return (
@@ -110,6 +153,62 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
               <p className="text-foreground font-bold text-xs uppercase tracking-widest">{post.author}</p>
               <p className="text-muted-foreground text-[11px] font-semibold uppercase tracking-wide">Learning Team</p>
             </div>
+          </motion.div>
+
+          {/* Share Buttons */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex items-center gap-3 pt-8 flex-wrap"
+          >
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Share:</span>
+            <button 
+              onClick={shareToTwitter}
+              className="p-3 rounded-lg bg-background border border-border/30 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all flex items-center gap-2"
+              title="Share on Twitter"
+            >
+              <Twitter className="w-4 h-4" />
+              <span className="text-[9px] font-semibold uppercase tracking-wider hidden sm:inline">Twitter</span>
+            </button>
+            <button 
+              onClick={shareToFacebook}
+              className="p-3 rounded-lg bg-background border border-border/30 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all flex items-center gap-2"
+              title="Share on Facebook"
+            >
+              <Facebook className="w-4 h-4" />
+              <span className="text-[9px] font-semibold uppercase tracking-wider hidden sm:inline">Facebook</span>
+            </button>
+            <button 
+              onClick={shareToLinkedIn}
+              className="p-3 rounded-lg bg-background border border-border/30 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all flex items-center gap-2"
+              title="Share on LinkedIn"
+            >
+              <Linkedin className="w-4 h-4" />
+              <span className="text-[9px] font-semibold uppercase tracking-wider hidden sm:inline">LinkedIn</span>
+            </button>
+            <button 
+              onClick={shareViaEmail}
+              className="p-3 rounded-lg bg-background border border-border/30 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all flex items-center gap-2"
+              title="Share via Email"
+            >
+              <Mail className="w-4 h-4" />
+              <span className="text-[9px] font-semibold uppercase tracking-wider hidden sm:inline">Email</span>
+            </button>
+            <button 
+              onClick={handleCopyLink}
+              className={`p-3 rounded-lg border transition-all flex items-center gap-2 ${
+                copied 
+                  ? 'bg-primary/20 border-primary text-primary' 
+                  : 'bg-background border-border/30 text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary'
+              }`}
+              title="Copy link to clipboard"
+            >
+              <Copy className="w-4 h-4" />
+              <span className="text-[9px] font-semibold uppercase tracking-wider hidden sm:inline">
+                {copied ? 'Copied!' : 'Copy'}
+              </span>
+            </button>
           </motion.div>
         </div>
 
