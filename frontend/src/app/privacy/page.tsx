@@ -2,7 +2,7 @@ import { LegalLayout } from "@/components/legal-layout";
 
 export default function PrivacyPolicy() {
   return (
-    <LegalLayout title="Privacy Policy" lastUpdated="February 6, 2026">
+    <LegalLayout title="Privacy Policy">
       <h2>1. Introduction</h2>
       <p>
         Welcome to Mentiscope (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your privacy and ensuring you have a positive experience on our website and in using our products and services (collectively, &quot;Products&quot;). This Privacy Policy applies to Mentiscope&apos;s website and services and describes how we handle personal information and the choices available to you regarding collection, use, access, and how to update and correct your personal information.

@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebase-admin";
-import OpenAI from "openai";
 import { QueryDocumentSnapshot, DocumentData } from "firebase-admin/firestore";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1",
-  defaultHeaders: {
-    "HTTP-Referer": "https://mentiscope.vercel.app",
-    "X-Title": "Mentiscope",
-  }
-});
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +8,17 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ studentId: string }> }
 ) {
+  // Lazy-load OpenAI to avoid build-time initialization
+  const OpenAI = (await import("openai")).default;
+  
+  const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+    baseURL: "https://openrouter.ai/api/v1",
+    defaultHeaders: {
+      "HTTP-Referer": "https://mentiscope.vercel.app",
+      "X-Title": "Mentiscope",
+    }
+  });
   if (!db) {
     return NextResponse.json({ error: "Firebase DB not initialized" }, { status: 500 });
   }

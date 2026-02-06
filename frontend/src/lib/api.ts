@@ -20,8 +20,11 @@ export async function createStudent(data: { name: string, grade_level: string, p
 }
 
 export async function submitAssessment(studentId: string, type: string, data: Record<string, unknown>) {
+  if (!db) {
+    throw new Error("Firestore not initialized");
+  }
   const assessmentsRef = collection(db, "assessments");
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   
   const docRef = await addDoc(assessmentsRef, {
     student_id: studentId,
@@ -38,6 +41,9 @@ export async function submitAssessment(studentId: string, type: string, data: Re
 }
 
 export async function createCheckoutSession(productId: string, planName: string, price: string) {
+  if (!auth) {
+    throw new Error("Firebase not initialized");
+  }
   const user = auth.currentUser;
   if (!user) {
     throw new Error("You must be logged in to commence checkout.");
@@ -70,6 +76,9 @@ export async function createCheckoutSession(productId: string, planName: string,
 }
 
 export async function getStudentDashboard(studentId: string): Promise<Student> {
+  if (!db) {
+    throw new Error("Firestore not initialized");
+  }
   const studentRef = doc(db, "students", studentId);
   const studentSnap = await getDoc(studentRef);
 
@@ -102,6 +111,9 @@ if (!API_URL && process.env.NODE_ENV === 'production') {
 export async function triggerAnalysis(studentId: string): Promise<{ status: string, message: string }> {
   console.log(`Triggering Neural Analysis for student ${studentId}...`);
   
+  if (!auth) {
+    throw new Error("Firebase not initialized");
+  }
   const user = auth.currentUser;
   if (!user) {
     throw new Error("You must be logged in to trigger analysis.");

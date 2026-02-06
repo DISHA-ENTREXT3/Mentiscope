@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Sparkles, Zap, Shield } from "lucide-react";
+import { Check, Sparkles, Zap, Shield, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,10 @@ export default function PricingPage() {
   const router = useRouter();
 
   const handleSubscribe = async (plan: string, price: number, productId: string) => {
+    if (!auth) {
+      console.error("Firebase not initialized");
+      return;
+    }
     const user = auth.currentUser;
     if (!user) {
       router.push("/signup?redirect=/pricing");
@@ -96,6 +100,16 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background selection:bg-primary selection:text-black py-32 px-6">
       <div className="max-w-7xl mx-auto space-y-20">
+        {/* Back Button */}
+        <motion.button
+          onClick={() => router.back()}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="group flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em]">Back</span>
+        </motion.button>
         
         {/* Header */}
         <div className="text-center space-y-6 max-w-3xl mx-auto">

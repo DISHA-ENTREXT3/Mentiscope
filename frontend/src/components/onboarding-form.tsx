@@ -81,6 +81,7 @@ export default function OnboardingForm() {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!auth) return;
     const user = auth.currentUser;
     if (user) setUserId(user.uid);
   }, []);

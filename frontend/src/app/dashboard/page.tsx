@@ -7,10 +7,17 @@ import { onAuthStateChanged } from "firebase/auth";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function DashboardRedirect() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!auth || !db) {
+      console.warn("Firebase not initialized");
+      return;
+    }
+    
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         router.push("/login");
@@ -18,7 +25,7 @@ export default function DashboardRedirect() {
       }
 
       try {
-        const studentsRef = collection(db, "students");
+        const studentsRef = collection(db!, "students");
         const q = query(studentsRef, where("parent_id", "==", user.uid));
         const querySnapshot = await getDocs(q);
         

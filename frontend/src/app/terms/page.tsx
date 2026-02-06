@@ -2,7 +2,7 @@ import { LegalLayout } from "@/components/legal-layout";
 
 export default function TermsOfService() {
   return (
-    <LegalLayout title="Terms and Conditions" lastUpdated="February 6, 2026">
+    <LegalLayout title="Terms and Conditions">
       <h2>1. Introduction</h2>
       <p>
         These Terms and Conditions (&quot;Terms&quot;) govern your use of the Mentiscope platform (&quot;Product&quot;), provided by Entrext Labs (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). By accessing or using our Product, you agree to be bound by these Terms. If you do not agree, you must not access or use the Product.

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Chrome, Sparkles, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, Chrome, Sparkles, ShieldCheck, Zap, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -15,6 +15,10 @@ export default function SignupPage() {
   const router = useRouter();
 
   const handleGoogleSignup = async () => {
+    if (!auth || !googleProvider) {
+      console.error("Firebase not initialized");
+      return;
+    }
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -29,6 +33,17 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Back Button */}
+      <motion.button
+        onClick={() => router.back()}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="absolute top-8 left-8 group flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Back</span>
+      </motion.button>
+
       {/* Background Ambience */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_30%,rgba(135,255,200,0.05)_0%,transparent_50%)]" />

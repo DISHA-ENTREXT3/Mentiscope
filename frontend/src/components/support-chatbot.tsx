@@ -35,9 +35,11 @@ export function SupportChatbot() {
     ]);
     
     // Auto-fill email if user is logged in
-    const user = auth.currentUser;
-    if (user?.email) {
-      setSupportEmail(user.email);
+    if (auth) {
+      const user = auth.currentUser;
+      if (user?.email) {
+        setSupportEmail(user.email);
+      }
     }
   }, []);
 

@@ -18,6 +18,7 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
@@ -26,6 +27,7 @@ export default function Home() {
   }, []);
 
   const handleLogout = async () => {
+    if (!auth) return;
     try {
       await signOut(auth);
       setUser(null);
@@ -47,10 +49,9 @@ export default function Home() {
           </Link>
           
           <div className="hidden md:flex items-center gap-10">
-            <Link href="/pricing" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
             <Link href="/how-it-works" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">How it works</Link>
             <Link href="/features" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Features</Link>
-            <Link href="/blog" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Blogs</Link>
+            <Link href="/pricing" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
           </div>
 
           <div className="flex items-center gap-6">

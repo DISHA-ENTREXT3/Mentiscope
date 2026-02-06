@@ -13,10 +13,14 @@ export function ConsultationScheduler() {
   const [time, setTime] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [email] = useState(auth.currentUser?.email || "");
+  const [email] = useState(auth?.currentUser?.email || "");
 
   const handleBook = async () => {
     if (!date || !time) return;
+    if (!auth) {
+      alert("Firebase not initialized");
+      return;
+    }
     setLoading(true);
 
     try {

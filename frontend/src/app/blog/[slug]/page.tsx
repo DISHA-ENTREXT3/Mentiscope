@@ -2,14 +2,16 @@
 
 import { use } from "react";
 import { getBlogBySlug } from "@/data/blog-posts";
-import { Brain, Clock, ChevronLeft, ChevronDown, Share2, Twitter, Linkedin } from "lucide-react";
+import { Brain, Clock, ChevronLeft, ChevronDown, Twitter, Linkedin, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { SubscribeSection } from "@/components/subscribe-section";
+import { useRouter } from "next/navigation";
 
 export default function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+  const router = useRouter();
   const resolvedParams = use(params);
   const post = getBlogBySlug(resolvedParams.slug);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -58,19 +60,29 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-6 space-y-20">
+      <div className="max-w-4xl mx-auto px-6 space-y-12">
+        {/* Back Button */}
+        <motion.button
+          onClick={() => router.back()}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="group flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mt-8"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em]">Back to Blog</span>
+        </motion.button>
         {/* Header */}
-        <div className="space-y-12">
+        <div className="space-y-8">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-6"
+            className="flex items-center gap-4 flex-wrap"
           >
-            <span className="px-6 py-2 rounded-full glass border border-primary/20 text-[10px] font-black text-primary uppercase tracking-[0.3em]">
+            <span className="px-4 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-xs font-bold text-primary uppercase tracking-widest">
               {post.category}
             </span>
-            <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-              <span className="flex items-center gap-2"><Clock className="w-3 h-3" /> {post.readTime}</span>
+            <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+              <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {post.readTime}</span>
               <span>•</span>
               <span>{post.date}</span>
             </div>
@@ -80,7 +92,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl font-black text-foreground tracking-tighter uppercase leading-tight"
+            className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tight uppercase leading-tight"
           >
             {post.title}
           </motion.h1>
@@ -89,14 +101,14 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex items-center gap-4"
+            className="flex items-center gap-3 pt-4"
           >
-            <div className="w-12 h-12 rounded-2xl bg-muted border border-border/10 flex items-center justify-center font-black text-primary text-xs">
+            <div className="w-10 h-10 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center font-black text-xs text-primary">
               {post.author.split(' ').map(n => n[0]).join('')}
             </div>
             <div>
-              <p className="text-foreground font-black uppercase text-[10px] tracking-widest">{post.author}</p>
-              <p className="text-muted-foreground text-[8px] font-black uppercase tracking-[0.2em]">Learning Team</p>
+              <p className="text-foreground font-bold text-xs uppercase tracking-widest">{post.author}</p>
+              <p className="text-muted-foreground text-[11px] font-semibold uppercase tracking-wide">Learning Team</p>
             </div>
           </motion.div>
         </div>
@@ -106,10 +118,9 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="relative h-[500px] md:h-[700px] rounded-[4rem] overflow-hidden border border-white/5 shadow-2xl"
+          className="relative h-[300px] md:h-[450px] rounded-2xl overflow-hidden border border-border/30"
         >
           <Image src={post.image1} alt={post.title} fill className="object-cover" />
-          <div className="absolute inset-0 bg-linear-to-t from-[#030712] via-transparent to-transparent opacity-40" />
         </motion.div>
 
         {/* Content */}
@@ -117,23 +128,37 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="prose prose-xl prose-invert max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-p:text-slate-300 prose-p:font-medium prose-p:leading-10 prose-p:text-xl prose-strong:text-white prose-li:text-slate-300 prose-li:marker:text-primary overflow-hidden"
-          dangerouslySetInnerHTML={{ 
-            __html: post.content
-              .replace(/\n\n/g, '</p><p class="mb-8">')
-              .replace(/\n/g, '<br />')
-              .replace(/## (.*)/g, '<h2 class="text-4xl md:text-5xl mt-16 mb-8 text-white uppercase tracking-tighter leading-none">$1</h2>')
-              .replace(/### (.*)/g, '<h3 class="text-2xl md:text-3xl mt-12 mb-6 text-primary uppercase tracking-tight">$1</h3>')
-              .replace(/\*\*(.*)\*\*/g, '<strong class="text-white font-bold">$1</strong>')
-          }}
-        />
+          className="space-y-8 text-foreground"
+        >
+          <div 
+            className="prose prose-invert prose-lg max-w-none
+            prose-headings:font-bold prose-headings:text-white prose-headings:mt-10 prose-headings:mb-4
+            prose-h2:text-3xl prose-h2:uppercase prose-h2:tracking-tight
+            prose-h3:text-xl prose-h3:text-primary prose-h3:uppercase 
+            prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:font-normal
+            prose-strong:text-foreground prose-strong:font-semibold
+            prose-li:text-muted-foreground prose-li:font-normal
+            prose-ol:text-muted-foreground prose-code:text-primary/80
+            dark"
+            dangerouslySetInnerHTML={{ 
+              __html: post.content
+                .replace(/\n\n/g, '</p><p class="mb-6">')
+                .replace(/\n/g, '<br />')
+                .replace(/## (.*)/g, '<h2 class="text-2xl md:text-3xl mt-10 mb-4 text-foreground font-bold uppercase tracking-tight">$1</h2>')
+                .replace(/### (.*)/g, '<h3 class="text-xl mt-8 mb-3 text-primary font-bold uppercase">$1</h3>')
+                .replace(/\*\*(.*)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
+                .replace(/^\s*-\s+/gm, '<li>')
+                .replace(/\s*$/gm, '</li>')
+            }}
+          />
+        </motion.div>
 
         {/* Feature Image 2 */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative h-[400px] md:h-[600px] rounded-[4rem] overflow-hidden border border-white/5 shadow-2xl"
+          className="relative h-[300px] md:h-[450px] rounded-2xl overflow-hidden border border-border/30"
         >
           <Image src={post.image2} alt={post.title} fill className="object-cover" />
         </motion.div>
@@ -143,30 +168,30 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="space-y-12 py-20"
+          className="space-y-8 py-12"
         >
-          <div className="text-center space-y-4">
-            <h2 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter">Common <span className="text-gradient">Questions</span>.</h2>
-            <p className="text-muted-foreground font-bold tracking-widest uppercase text-[10px]">More helpful information</p>
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground uppercase tracking-tight">Common Questions</h2>
+            <p className="text-muted-foreground font-semibold tracking-widest uppercase text-xs">About this article</p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {post.faqs.map((faq, index) => (
               <div 
                 key={index}
-                className={`glass p-8 md:p-12 rounded-[3rem] border transition-all duration-500 ${
-                  activeFaq === index ? "border-primary/40 bg-white/5" : "border-white/5 hover:border-white/10"
+                className={`border rounded-lg p-6 md:p-8 transition-all duration-300 ${
+                  activeFaq === index ? "border-primary/40 bg-primary/5" : "border-border/30 hover:border-border/50"
                 }`}
               >
                 <button 
                   onClick={() => setActiveFaq(activeFaq === index ? null : index)}
-                  className="w-full text-left flex items-start justify-between gap-6"
+                  className="w-full text-left flex items-start justify-between gap-4"
                 >
-                  <h3 className="text-xl md:text-2xl font-black text-foreground leading-tight uppercase tracking-tight">{faq.question}</h3>
-                  <div className={`mt-1 p-2 rounded-xl transition-all duration-500 ${
-                    activeFaq === index ? "bg-primary text-black rotate-180" : "bg-background border border-border/10 text-muted-foreground"
+                  <h3 className="text-base md:text-lg font-bold text-foreground leading-relaxed uppercase tracking-tight">{faq.question}</h3>
+                  <div className={`mt-0.5 p-1.5 rounded transition-all duration-300 flex-shrink-0 ${
+                    activeFaq === index ? "bg-primary text-black" : "bg-background border border-border/20 text-muted-foreground"
                   }`}>
-                    <ChevronDown className="w-5 h-5" />
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeFaq === index ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
                 <AnimatePresence>
@@ -177,7 +202,7 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="pt-8 text-slate-400 font-medium leading-relaxed text-lg">
+                      <div className="pt-6 text-muted-foreground font-normal leading-relaxed">
                         {faq.answer}
                       </div>
                     </motion.div>
@@ -189,22 +214,22 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
         </motion.div>
 
         {/* Related Posts Link */}
-        <div className="pt-12 border-t border-border/10 flex items-center justify-between">
+        <div className="pt-8 border-t border-border/30 flex items-center justify-between flex-wrap gap-6">
           <div className="space-y-2">
-            <p className="text-[10px] font-black uppercase tracking-[.4em] text-muted-foreground">Tags</p>
-            <div className="flex gap-2">
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tags</p>
+            <div className="flex gap-2 flex-wrap">
               {post.tags.map(tag => (
-                <span key={tag} className="text-[9px] font-bold text-muted-foreground hover:text-primary cursor-pointer transition-colors">#{tag.replace(/\s+/g, '')}</span>
+                <span key={tag} className="text-[9px] font-semibold text-muted-foreground hover:text-primary cursor-pointer transition-colors">#{tag.replace(/\s+/g, '')}</span>
               ))}
             </div>
           </div>
-          <Link href="/blog" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-foreground hover:text-primary transition-colors">
-            Back to Blog <Share2 className="w-4 h-4" />
+          <Link href="/blog" className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-foreground hover:text-primary transition-colors">
+            Back to Blog <ChevronLeft className="w-4 h-4" />
           </Link>
         </div>
 
         {/* Post Subscribe CTA */}
-        <div className="pt-20">
+        <div className="pt-12">
           <SubscribeSection />
         </div>
       </div>

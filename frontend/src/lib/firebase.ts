@@ -13,27 +13,41 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Prevent runtime crash if env vars are missing
-if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'your-api-key') {
-  console.warn("Firebase credentials missing. Authentication will be degraded.");
+// Only initialize if we're on the client side
+const isClient = typeof window !== 'undefined';
+
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
+
+if (isClient && firebaseConfig.apiKey && firebaseConfig.apiKey !== 'your-api-key') {
+  try {
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApps()[0];
+    }
+    auth = getAuth(app!);
+    db = getFirestore(app!);
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+    console.warn("Firebase credentials may be invalid. Authentication will be degraded.");
+  }
+} else if (!isClient) {
+  console.warn("Firebase initialization skipped (not on client side).");
 }
 
-// Initialize Firebase
-let app: FirebaseApp;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApps()[0];
+export { auth, db };
+export const functions: Functions | null = app ? getFunctions(app!) : null;
+
+let googleProvider: GoogleAuthProvider | null = null;
+if (isClient && app) {
+  googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({
+    prompt: 'select_account'
+  });
 }
 
-export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
-export const functions: Functions = getFunctions(app);
-export const googleProvider = new GoogleAuthProvider();
-
-// Configure Google provider
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
+export { googleProvider };
 
 export default app;

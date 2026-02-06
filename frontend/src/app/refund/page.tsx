@@ -2,7 +2,7 @@ import { LegalLayout } from "@/components/legal-layout";
 
 export default function RefundPolicy() {
   return (
-    <LegalLayout title="Disclaimer and Refund Policy" lastUpdated="February 6, 2026">
+    <LegalLayout title="Disclaimer and Refund Policy">
       <h2>1. Disclaimer of Liability</h2>
       <p>
         The content, analysis, and insights provided by Mentiscope (&quot;Product&quot;) are for educational and informational purposes only. While we strive to provide accurate and helpful growth mapping based on the data provided, we cannot guarantee specific academic or behavioral outcomes.

@@ -2,7 +2,7 @@ import { LegalLayout } from "@/components/legal-layout";
 
 export default function CookiePolicy() {
   return (
-    <LegalLayout title="Cookie Policy" lastUpdated="February 6, 2026">
+    <LegalLayout title="Cookie Policy">
       <h2>1. Introduction</h2>
       <p>
         This Cookie Policy explains how Mentiscope (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) uses cookies and similar technologies to recognize you when you visit our website. It explains what these technologies are and why we use them, as well as your rights to control our use of them.

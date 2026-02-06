@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
+export const dynamic = "force-dynamic";
+
 // Internal component that uses searchParams
 function DashboardContent({ children, user }: { children: React.ReactNode, user: User | null }) {
   const pathname = usePathname();
@@ -21,7 +23,9 @@ function DashboardContent({ children, user }: { children: React.ReactNode, user:
   const studentId = pathname.split('/')[2] || "demo-student-id";
 
   const handleSignOut = async () => {
-    await signOut(auth);
+    if (auth) {
+      await signOut(auth);
+    }
     router.push("/");
   };
 
@@ -143,9 +147,10 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState(auth.currentUser);
+  const [user, setUser] = useState(auth?.currentUser || null);
 
   useEffect(() => {
+    if (!auth) return;
     const unsubscribe = auth.onAuthStateChanged((user) => setUser(user));
     return () => unsubscribe();
   }, []);
