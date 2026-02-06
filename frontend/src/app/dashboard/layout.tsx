@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
+import { signOut, User } from "firebase/auth";
 import { 
   LayoutDashboard, LineChart, FileText, Settings, 
   LogOut, Bell, Activity, Sparkles, Terminal,
@@ -13,21 +13,12 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// Internal component that uses searchParams
+function DashboardContent({ children, user }: { children: React.ReactNode, user: User | null }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [user, setUser] = useState(auth.currentUser);
   const studentId = pathname.split('/')[2] || "demo-student-id";
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => setUser(user));
-    return () => unsubscribe();
-  }, []);
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -35,7 +26,7 @@ export default function DashboardLayout({
   };
 
   const userName = user?.displayName || user?.email?.split('@')[0] || "Pilot User";
-  const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  const userInitials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
 
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
@@ -144,5 +135,24 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [user, setUser] = useState(auth.currentUser);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => setUser(user));
+    return () => unsubscribe();
+  }, []);
+
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center bg-background text-primary">Initializing Dashboard Protocol...</div>}>
+      <DashboardContent user={user}>{children}</DashboardContent>
+    </Suspense>
   );
 }
