@@ -137,7 +137,7 @@ export default function Home() {
               className="space-y-8 flex flex-col items-center lg:items-start"
             >
               <a
-                href="https://substack.com"
+                href="https://entrextlabs.substack.com/subscribe"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 bg-primary text-black text-[10px] font-black uppercase tracking-widest px-10 py-4 rounded-2xl hover:scale-105 transition-all active:scale-95 shadow-[0_0_30px_rgba(135,255,200,0.4)] group"
@@ -148,16 +148,16 @@ export default function Home() {
               {/* Social Media Icons */}
               <div className="flex items-center gap-4">
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Follow Us:</span>
-                <a href="https://linkedin.com/company/mentiscope" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Connect on LinkedIn">
+                <a href="https://www.linkedin.com/company/entrext/posts/?feedView=all" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Connect on LinkedIn">
                   <Linkedin className="w-4 h-4" />
                 </a>
-                <a href="https://instagram.com/mentiscope" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Follow on Instagram">
+                <a href="https://www.instagram.com/entrext.labs" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Follow on Instagram">
                   <Instagram className="w-4 h-4" />
                 </a>
-                <a href="https://discord.gg/mentiscope" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Join Discord">
+                <a href="https://discord.com/invite/ZZx3cBrx2" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Join Discord">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.211.375-.444.864-.607 1.25a18.27 18.27 0 0 0-5.487 0c-.163-.386-.396-.875-.607-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.975 14.975 0 0 0 1.293-2.1a.07.07 0 0 0-.038-.098a13.11 13.11 0 0 1-1.872-.892a.072.072 0 0 1-.007-.12a10.49 10.49 0 0 0 .372-.294a.07.07 0 0 1 .073-.01c3.928 1.793 8.18 1.793 12.062 0a.07.07 0 0 1 .074.009c.12.098.246.198.373.295a.072.072 0 0 1-.006.12a12.977 12.977 0 0 1-1.873.892a.07.07 0 0 0-.037.099a14.992 14.992 0 0 0 1.293 2.1a.078.078 0 0 0 .084.028a19.963 19.963 0 0 0 6.002-3.03a.079.079 0 0 0 .033-.057c.5-4.467.08-8.345-2.127-12.332a.049.049 0 0 0-.031-.027zM8.02 15.33c-1.183 0-2.157-.965-2.157-2.156c0-1.193.92-2.157 2.157-2.157c1.237 0 2.177.964 2.157 2.157c0 1.19-.92 2.155-2.157 2.155zm7.975 0c-1.183 0-2.157-.965-2.157-2.156c0-1.193.92-2.157 2.157-2.157c1.236 0 2.177.964 2.157 2.157c0 1.19-.92 2.155-2.157 2.155z"/></svg>
                 </a>
-                <a href="https://linktree.com/mentiscope" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="View all links on Linktree">
+                <a href="https://linktr.ee/entrext.pro" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-white/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="View all links on Linktree">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
                 </a>
               </div>
@@ -254,16 +254,16 @@ export default function Home() {
               Helping children reach their potential through data-driven learning insights.
             </p>
             <div className="flex items-center gap-4">
-              <a href="https://linkedin.com/company/mentiscope" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Connect on LinkedIn">
+              <a href="https://www.linkedin.com/company/entrext/posts/?feedView=all" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Connect on LinkedIn">
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a href="https://instagram.com/mentiscope" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Follow us on Instagram">
+              <a href="https://www.instagram.com/entrext.labs" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Follow us on Instagram">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="https://discord.gg/mentiscope" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Join Discord">
+              <a href="https://discord.com/invite/ZZx3cBrx2" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="Join Discord">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.211.375-.444.864-.607 1.25a18.27 18.27 0 0 0-5.487 0c-.163-.386-.396-.875-.607-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.975 14.975 0 0 0 1.293-2.1a.07.07 0 0 0-.038-.098a13.11 13.11 0 0 1-1.872-.892a.072.072 0 0 1-.007-.12a10.49 10.49 0 0 0 .372-.294a.07.07 0 0 1 .073-.01c3.928 1.793 8.18 1.793 12.062 0a.07.07 0 0 1 .074.009c.12.098.246.198.373.295a.072.072 0 0 1-.006.12a12.977 12.977 0 0 1-1.873.892a.07.07 0 0 0-.037.099a14.992 14.992 0 0 0 1.293 2.1a.078.078 0 0 0 .084.028a19.963 19.963 0 0 0 6.002-3.03a.079.079 0 0 0 .033-.057c.5-4.467.08-8.345-2.127-12.332a.049.049 0 0 0-.031-.027zM8.02 15.33c-1.183 0-2.157-.965-2.157-2.156c0-1.193.92-2.157 2.157-2.157c1.237 0 2.177.964 2.157 2.157c0 1.19-.92 2.155-2.157 2.155zm7.975 0c-1.183 0-2.157-.965-2.157-2.156c0-1.193.92-2.157 2.157-2.157c1.236 0 2.177.964 2.157 2.157c0 1.19-.92 2.155-2.157 2.155z"/></svg>
               </a>
-              <a href="https://linktree.com/mentiscope" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="View all links on Linktree">
+              <a href="https://linktr.ee/entrext.pro" target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-foreground/5 border border-border/30 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all" title="View all links on Linktree">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
               </a>
             </div>
