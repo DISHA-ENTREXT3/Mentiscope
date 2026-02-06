@@ -141,7 +141,7 @@ export default function WeeklyCheckinForm({ studentId }: { studentId: string }) 
       </Card>
       
       <p className="text-center mt-12 text-slate-600 text-[10px] font-black uppercase tracking-[0.6em]">
-         Encrypted Stream — Neural Protocol Active
+         Encrypted Stream - Neural Protocol Active
       </p>
     </motion.div>
   );

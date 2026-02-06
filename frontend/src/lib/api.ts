@@ -21,8 +21,11 @@ export async function createStudent(data: { name: string, grade_level: string, p
 
 export async function submitAssessment(studentId: string, type: string, data: Record<string, unknown>) {
   const assessmentsRef = collection(db, "assessments");
+  const user = auth.currentUser;
+  
   const docRef = await addDoc(assessmentsRef, {
     student_id: studentId,
+    parent_id: user?.uid, // Added for easier security rule validation
     type,
     data,
     created_at: Timestamp.now()

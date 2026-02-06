@@ -48,6 +48,9 @@ export default function Home() {
           
           <div className="hidden md:flex items-center gap-10">
             <Link href="/pricing" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
+            <Link href="/how-it-works" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">How it works</Link>
+            <Link href="/features" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Features</Link>
+            <Link href="/blog" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Blogs</Link>
           </div>
 
           <div className="flex items-center gap-6">
@@ -121,7 +124,7 @@ export default function Home() {
               transition={{ delay: 0.2 }}
               className="text-xl md:text-2xl text-slate-500 font-medium max-w-2xl leading-relaxed"
             >
-              AI-powered patterns that help you understand your child&apos;s learning habits and well-being—supporting growth before challenges appear.
+              AI-powered patterns that help you understand your child&apos;s learning habits and well-being - supporting growth before challenges appear.
             </motion.p>
 
             {/* In-Hero Subscribe Section */}

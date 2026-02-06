@@ -24,7 +24,7 @@ export default function OnboardingPage() {
           className="text-center mb-16 space-y-4"
         >
            <h1 className="text-6xl md:text-8xl font-black text-gradient tracking-tighter uppercase leading-[0.85]">Init Neural <br />Protocol</h1>
-           <p className="text-slate-500 font-bold uppercase tracking-[0.4em] text-xs">Calibration Step: 01 — Baseline Discovery</p>
+           <p className="text-slate-500 font-bold uppercase tracking-[0.4em] text-xs">Calibration Step: 01 - Baseline Discovery</p>
         </motion.div>
         
         <OnboardingForm />

@@ -128,7 +128,7 @@ function DashboardContent({ children, user }: { children: React.ReactNode, user:
         </header>
 
         {/* Scrollable Viewport */}
-        <main className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top_right,rgba(135,255,200,0.03),transparent)] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pr-2">
+        <main className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top_right,rgba(135,255,200,0.03),transparent)] scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent hover:scrollbar-thumb-primary pr-2">
            <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 h-full">
               {children}
            </div>

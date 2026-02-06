@@ -37,10 +37,10 @@ service cloud.firestore {
                   exists(/databases/$(database)/documents/students/$(resource.data.student_id)) &&
                   get(/databases/$(database)/documents/students/$(resource.data.student_id)).data.parent_id == request.auth.uid;
       
-      // Create if you own the student
+      // Create: Allow if user claims ownership (sets parent_id to self) and student exists
       allow create: if request.auth != null && 
-                    exists(/databases/$(database)/documents/students/$(request.resource.data.student_id)) &&
-                    get(/databases/$(database)/documents/students/$(request.resource.data.student_id)).data.parent_id == request.auth.uid;
+                    request.resource.data.parent_id == request.auth.uid &&
+                    exists(/databases/$(database)/documents/students/$(request.resource.data.student_id));
       
       // Update if you own the student
       allow update: if request.auth != null && 
