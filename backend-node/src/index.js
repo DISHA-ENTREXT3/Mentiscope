@@ -34,7 +34,14 @@ try {
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',') 
-    : ['https://mentiscope.vercel.app', 'https://mentiscope.onrender.com'];
+    : [
+        'https://mentiscope.vercel.app',
+        'https://mentiscope.onrender.com',
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3001'
+      ];
 
 app.use(cors({
     origin: (origin, callback) => {
@@ -304,24 +311,39 @@ app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
         console.log(`[SYNTHESIS] Performing Standard Synthesis for ${student.name}`);
         const analysisResults = performStandardSynthesis(student, assessment || {});
 
-        // Try to store results, but don't fail if we can't
-        if (analysisGenerated) {
+        // Try to store results using Admin SDK for better reliability
+        if (analysisGenerated && assessment?.id) {
             try {
-                // Store results back to database
-                const assessmentPath = Object.keys(assessment).length > 0 ? `assessments/${assessment.id}` : null;
-                if (assessmentPath) {
-                    await firestoreREST('PATCH', assessmentPath, {
+                // Use Firestore Admin SDK if available (more reliable than REST)
+                console.log(`[STORE] Attempting to save analysis to assessment ${assessment.id}`);
+                
+                await db.collection('assessments').doc(assessment.id).update({
+                    analysis_results: analysisResults,
+                    status: 'analyzed',
+                    analyzed_at: admin.firestore.Timestamp.now()
+                });
+                
+                console.log(`[STORE] Analysis successfully saved to Firestore`);
+            } catch (adminError) {
+                console.warn("Admin SDK store failed, trying REST API:", adminError.message);
+                
+                // Fallback to REST API
+                try {
+                    await firestoreREST('PATCH', `assessments/${assessment.id}`, {
                         fields: {
                             analysis_results: { stringValue: JSON.stringify(analysisResults) },
                             status: { stringValue: 'analyzed' },
                             analyzed_at: { timestampValue: new Date().toISOString() }
                         }
                     }, req.idToken);
+                    console.log(`[STORE] Analysis saved via REST API`);
+                } catch (restError) {
+                    console.warn("REST API store also failed:", restError.message);
+                    // Analysis is still generated and returned to user, just not persisted
                 }
-            } catch (storeError) {
-                console.warn("Could not store analysis results to database:", storeError.message);
-                // Still return analysis to user
             }
+        } else if (!analysisGenerated) {
+            console.warn("[STORE] Skipping storage - no assessment found in Firestore (likely permission issue)");
         }
 
         res.json({ status: "success", data: analysisResults, provisional: !analysisGenerated });

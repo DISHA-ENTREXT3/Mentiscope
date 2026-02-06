@@ -1,5 +1,5 @@
 import { db, auth } from "./firebase";
-import { collection, addDoc, doc, getDoc, query, where, getDocs, Timestamp } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc, query, where, getDocs, Timestamp, updateDoc } from "firebase/firestore";
 import { Student } from "@/types";
 
 export async function createStudent(data: { name: string, grade_level: string, parent_id: string, school_type?: string }): Promise<Student & { raw_password?: string }> {
@@ -108,7 +108,7 @@ if (!API_URL && process.env.NODE_ENV === 'production') {
   console.error("NEXT_PUBLIC_API_URL is not defined in production environment.");
 }
 
-export async function triggerAnalysis(studentId: string): Promise<{ status: string, message: string }> {
+export async function triggerAnalysis(studentId: string): Promise<{ status: string, data?: any, provisional?: boolean }> {
   console.log(`Triggering Neural Analysis for student ${studentId}...`);
   
   if (!auth) {
@@ -137,6 +137,33 @@ export async function triggerAnalysis(studentId: string): Promise<{ status: stri
     }
 
     const data = await response.json();
+    
+    // If backend returned analysis but couldn't save it (provisional), save it ourselves
+    if (data.provisional && data.data && db) {
+      console.log("Backend generated analysis but couldn't persist. Attempting frontend save...");
+      try {
+        const assessmentsQuery = query(
+          collection(db, "assessments"), 
+          where("student_id", "==", studentId)
+        );
+        const assessmentDocs = await getDocs(assessmentsQuery);
+        
+        if (!assessmentDocs.empty) {
+          const assessmentDoc = assessmentDocs.docs[0];
+          const assessmentRef = doc(db, "assessments", assessmentDoc.id);
+          await updateDoc(assessmentRef, {
+            analysis_results: data.data,
+            status: 'analyzed',
+            analyzed_at: Timestamp.now()
+          });
+          console.log("Analysis successfully saved from frontend");
+        }
+      } catch (saveError) {
+        console.warn("Frontend save also failed, but analysis was generated:", saveError);
+        // Don't throw - analysis was generated, just not persisted
+      }
+    }
+    
     return data;
   } catch (error: unknown) {
     console.error("Analysis Trigger Failed:", error);
