@@ -42,10 +42,15 @@ service cloud.firestore {
                     request.resource.data.parent_id == request.auth.uid &&
                     exists(/databases/$(database)/documents/students/$(request.resource.data.student_id));
       
-      // Update if you own the student
-      allow update: if request.auth != null && 
-                    exists(/databases/$(database)/documents/students/$(resource.data.student_id)) &&
-                    get(/databases/$(database)/documents/students/$(resource.data.student_id)).data.parent_id == request.auth.uid;
+      // Update: Allow if you own the student OR if it's the backend service updating analysis
+      allow update: if request.auth != null && (
+                    (exists(/databases/$(database)/documents/students/$(resource.data.student_id)) &&
+                     get(/databases/$(database)/documents/students/$(resource.data.student_id)).data.parent_id == request.auth.uid) ||
+                    // Allow service account to update analysis_results, status, and analyzed_at
+                    (request.resource.data.analysis_results != null &&
+                     request.resource.data.status != null &&
+                     request.resource.data.analyzed_at != null)
+                   );
     }
     
     // Analysis Results Collection
