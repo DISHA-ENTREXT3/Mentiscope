@@ -125,6 +125,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [showScheduler, setShowScheduler] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -890,22 +891,27 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
               </div>
            </div>
            <div className="w-full max-w-md mx-auto space-y-4 relative z-10">
-              <Button className="w-full h-20 rounded-[2.5rem] bg-white text-black font-black uppercase text-lg transition-all hover:scale-105 shadow-2xl">Schedule Recalibration</Button>
-              <div className="flex justify-between gap-4">
-                 <Button onClick={handleUpgrade} variant="outline" className="flex-1 h-14 rounded-2xl border-white/5 bg-white/5 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white transition-colors">Precision Upscale</Button>
-                 <Button variant="outline" className="flex-1 h-14 rounded-2xl border-white/5 bg-white/5 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white transition-colors">Export Map</Button>
-              </div>
+              {showScheduler ? (
+                  <div className="bg-black/50 p-6 rounded-[2rem] border border-white/10 backdrop-blur-md relative animate-in fade-in zoom-in duration-300">
+                     <button onClick={() => setShowScheduler(false)} className="absolute top-6 right-6 text-[10px] text-white/50 hover:text-white uppercase font-black tracking-widest z-50">Close [X]</button>
+                     <ConsultationScheduler />
+                  </div>
+              ) : (
+                  <>
+                  <Button onClick={() => setShowScheduler(true)} className="w-full h-20 rounded-[2.5rem] bg-white text-black font-black uppercase text-lg transition-all hover:scale-105 shadow-2xl">
+                    Schedule Recalibration
+                  </Button>
+                  <div className="flex justify-between gap-4">
+                     <Button onClick={handleUpgrade} variant="outline" className="flex-1 h-14 rounded-2xl border-white/5 bg-white/5 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white transition-colors">Precision Upscale</Button>
+                     <Button variant="outline" className="flex-1 h-14 rounded-2xl border-white/5 bg-white/5 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white transition-colors">Export Map</Button>
+                  </div>
+                  </>
+              )}
            </div>
         </Card>
         </>
         )}
         
-        {view === 'expert' && (
-           <div className="lg:col-span-12">
-              <ConsultationScheduler />
-           </div>
-        )}
-
         {view === 'settings' && (
           <div className="lg:col-span-12 glass border-none rounded-[4rem] p-20 text-center space-y-8 min-h-[500px] flex flex-col items-center justify-center">
              <Settings className="w-20 h-20 text-slate-700 mb-4" />

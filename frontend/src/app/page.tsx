@@ -40,16 +40,14 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between glass px-8 py-4 rounded-[2rem] border border-white/5 backdrop-blur-2xl">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="bg-primary p-2 rounded-xl group-hover:scale-110 transition-transform">
-              <Brain className="w-5 h-5 text-black" />
+            <div className="bg-primary p-3 rounded-xl group-hover:scale-110 transition-transform">
+              <Brain className="w-10 h-10 text-black" />
             </div>
-            <span className="text-xl font-black text-foreground uppercase tracking-tighter">Mentiscope</span>
+            <span className="text-2xl font-black text-foreground uppercase tracking-tighter">Mentiscope</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-10">
-            <Link href="#how-it-works" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">How it works</Link>
-            <Link href="#features" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Features</Link>
-            <Link href="/blog" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Blogs</Link>
+            <Link href="/pricing" className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
           </div>
 
           <div className="flex items-center gap-6">
@@ -110,7 +108,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-6xl md:text-9xl font-black text-foreground tracking-tighter uppercase leading-[0.8] drop-shadow-2xl"
+              className="text-5xl md:text-6xl font-black text-foreground tracking-tighter uppercase leading-none drop-shadow-2xl max-w-lg mx-auto lg:mx-0"
             >
               Understanding <br />
               Learning <br />

@@ -44,7 +44,6 @@ function DashboardContent({ children, user }: { children: React.ReactNode, user:
             { name: "Intelligence Core", href: `/dashboard/${studentId}`, icon: LayoutDashboard },
             { name: "Neural Trends", href: `/dashboard/${studentId}?view=trends`, icon: LineChart },
             { name: "Action Protocols", href: `/dashboard/${studentId}?view=actions`, icon: FileText },
-            { name: "Expert Uplink", href: `/dashboard/${studentId}?view=expert`, icon: Briefcase },
             { name: "System Settings", href: `/dashboard/${studentId}?view=settings`, icon: Settings },
           ].map((item) => {
             const itemUrl = item.href.split('?')[0];
