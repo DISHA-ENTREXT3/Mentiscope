@@ -117,13 +117,13 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="prose prose-lg prose-invert max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-p:text-slate-300 prose-p:font-medium prose-p:leading-8 prose-strong:text-white prose-li:text-slate-300 prose-li:marker:text-primary overflow-hidden"
+          className="prose prose-xl prose-invert max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-p:text-slate-300 prose-p:font-medium prose-p:leading-10 prose-p:text-xl prose-strong:text-white prose-li:text-slate-300 prose-li:marker:text-primary overflow-hidden"
           dangerouslySetInnerHTML={{ 
             __html: post.content
-              .replace(/\n\n/g, '</p><p class="mb-6">')
+              .replace(/\n\n/g, '</p><p class="mb-8">')
               .replace(/\n/g, '<br />')
-              .replace(/## (.*)/g, '<h2 class="text-3xl md:text-4xl mt-12 mb-6 text-white uppercase tracking-tighter leading-none">$1</h2>')
-              .replace(/### (.*)/g, '<h3 class="text-xl md:text-2xl mt-8 mb-4 text-primary uppercase tracking-tight">$1</h3>')
+              .replace(/## (.*)/g, '<h2 class="text-4xl md:text-5xl mt-16 mb-8 text-white uppercase tracking-tighter leading-none">$1</h2>')
+              .replace(/### (.*)/g, '<h3 class="text-2xl md:text-3xl mt-12 mb-6 text-primary uppercase tracking-tight">$1</h3>')
               .replace(/\*\*(.*)\*\*/g, '<strong class="text-white font-bold">$1</strong>')
           }}
         />
