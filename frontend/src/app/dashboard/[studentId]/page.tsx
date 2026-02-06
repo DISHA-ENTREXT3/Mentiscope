@@ -18,6 +18,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConsultationScheduler } from "@/components/consultation-calendar";
 import { getStudentDashboard, createCheckoutSession, triggerAnalysis } from "@/lib/api";
 import { Student } from "@/types";
 
@@ -899,6 +900,12 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
         </>
         )}
         
+        {view === 'expert' && (
+           <div className="lg:col-span-12">
+              <ConsultationScheduler />
+           </div>
+        )}
+
         {view === 'settings' && (
           <div className="lg:col-span-12 glass border-none rounded-[4rem] p-20 text-center space-y-8 min-h-[500px] flex flex-col items-center justify-center">
              <Settings className="w-20 h-20 text-slate-700 mb-4" />

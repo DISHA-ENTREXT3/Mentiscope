@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /blog/
+Allow: /about/
+Allow: /pricing/
+Allow: /signup/
+
+# Block Private App Routes
+Disallow: /dashboard/
+Disallow: /onboarding/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /login/
+Disallow: /reset-password/
+
+# Sitemap Reference
+Sitemap: https://mentiscope.com/sitemap.xml

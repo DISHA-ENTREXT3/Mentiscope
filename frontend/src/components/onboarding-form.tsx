@@ -16,7 +16,7 @@ import {
   ChevronRight, Plus, Trash2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { createStudent, submitAssessment } from "@/lib/api";
+import { createStudent, submitAssessment, triggerAnalysis } from "@/lib/api";
 import { auth } from "@/lib/firebase";
 
 type Stage = "parent" | "academic" | "student" | "review" | "success";
@@ -171,7 +171,7 @@ export default function OnboardingForm() {
         alert("Session expired. Please log in again.");
         return;
     }
-    setLoading(true);
+      setLoading(true);
     try {
       const student = await createStudent({
         name: formData.studentName,
@@ -188,6 +188,14 @@ export default function OnboardingForm() {
       await submitAssessment(student.id, "onboarding", {
         ...formData
       });
+
+      // TRIGGER ANALYSIS (Fix: New users were not getting analysis generated)
+      try {
+        await triggerAnalysis(student.id);
+      } catch (analysisError) {
+         console.warn("Analysis trigger delayed:", analysisError);
+         // We continue anyway so the user isn't blocked, dashboard handles "no analysis" state
+      }
 
       // If we have a password, we'll show it before redirecting.
       // If not, we redirect now.
@@ -310,9 +318,12 @@ export default function OnboardingForm() {
                { id: 'academicConsistency' as const, label: 'Performance Consistency', desc: 'How steady is their performance across different units?' },
              ].map((item) => (
                <div key={item.id} className="space-y-8">
-                  <div className="flex justify-between items-center">
-                    <Label className="text-xl font-black text-white uppercase tracking-tight">{item.label}</Label>
-                    <span className="text-3xl font-black text-primary">{formData[item.id]}/5</span>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label className="text-xl font-black text-white uppercase tracking-tight">{item.label}</Label>
+                      <span className="text-3xl font-black text-primary">{formData[item.id]}/5</span>
+                    </div>
+                    <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-lg">{item.desc}</p>
                   </div>
                   <Slider 
                     min={1} max={5} step={1} 

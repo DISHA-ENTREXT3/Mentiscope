@@ -20,7 +20,9 @@ export function SupportChatbot() {
   const [showSupportForm, setShowSupportForm] = useState(false);
   const [supportEmail, setSupportEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [category, setCategory] = useState<string>("General Support"); // New state
+  
+  const scrollRef = useRef<HTMLDivElement>(null); // Used for the messages container
 
   useEffect(() => {
     setMessages([
@@ -170,31 +172,57 @@ export function SupportChatbot() {
 
             {/* Messages */}
             <div 
-              ref={scrollRef}
-              className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide"
+              ref={scrollRef} // Reverted to correct ref
+              className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
             >
-              {messages.map((msg) => (
-                <div 
-                  key={msg.id}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div className={`max-w-[80%] p-5 rounded-[2rem] text-sm font-medium leading-relaxed ${
-                    msg.role === "user" 
-                      ? "bg-primary text-black rounded-tr-none" 
-                      : "bg-white/5 border border-white/5 text-slate-300 rounded-tl-none"
-                  }`}>
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="bg-white/5 border border-white/5 p-5 rounded-[2rem] rounded-tl-none">
-                    <Loader2 className="w-4 h-4 text-primary animate-spin" />
-                  </div>
-                </div>
-              )}
+        {/* Intro Message */}
+        {messages.length === 0 && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-xs text-slate-300 leading-relaxed font-medium">
+                Greetings. I am the Neural Support Assistant. Select a protocol to begin.
+             </div>
+             
+             <div className="grid grid-cols-2 gap-2">
+                {["Account Access", "Billing Inquiry", "Report a Bug", "Feature Request"].map(topic => (
+                  <button
+                    key={topic}
+                    onClick={() => setCategory(topic)}
+                    className={`p-3 rounded-xl border text-[10px] font-black uppercase tracking-wider text-left transition-all ${
+                      category === topic 
+                        ? "bg-primary text-black border-primary"
+                        : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {topic}
+                  </button>
+                ))}
+             </div>
+          </div>
+        )}
+
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`
+              max-w-[85%] p-4 rounded-2xl text-sm font-medium leading-relaxed
+              ${m.role === 'user' 
+                ? 'bg-primary text-black rounded-tr-none' 
+                : 'bg-white/10 text-white rounded-tl-none border border-white/5'}
+            `}>
+              {m.content}
             </div>
+          </div>
+        ))}
+        {isSubmitting && (
+          <div className="flex justify-start">
+             <div className="bg-white/5 p-4 rounded-2xl rounded-tl-none flex gap-2 items-center">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:0.2s]" />
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:0.4s]" />
+             </div>
+          </div>
+        )}
+        <div ref={scrollRef} />
+      </div>
 
             {/* Support Form Overlay */}
             <AnimatePresence>

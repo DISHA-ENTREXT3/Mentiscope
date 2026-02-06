@@ -158,7 +158,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.8, rotate: 10 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 100, delay: 0.4 }}
-            className="flex-1 w-full max-w-2xl relative"
+            className="flex-1 w-full max-w-5xl relative"
           >
             <div className="glass rounded-[4rem] p-12 border border-border/10 aspect-square flex items-center justify-center relative group">
               <div className="absolute inset-0 bg-primary/5 rounded-[4rem] blur-3xl group-hover:bg-primary/20 transition-all duration-1000" />

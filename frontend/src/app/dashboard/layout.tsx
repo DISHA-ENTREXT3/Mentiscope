@@ -8,7 +8,7 @@ import { auth } from "@/lib/firebase";
 import { signOut, User } from "firebase/auth";
 import { 
   LayoutDashboard, LineChart, FileText, Settings, 
-  LogOut, Bell, Activity, Sparkles, Terminal,
+  LogOut, Bell, Activity, Sparkles, Briefcase, Terminal,
   Cpu
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -44,6 +44,7 @@ function DashboardContent({ children, user }: { children: React.ReactNode, user:
             { name: "Intelligence Core", href: `/dashboard/${studentId}`, icon: LayoutDashboard },
             { name: "Neural Trends", href: `/dashboard/${studentId}?view=trends`, icon: LineChart },
             { name: "Action Protocols", href: `/dashboard/${studentId}?view=actions`, icon: FileText },
+            { name: "Expert Uplink", href: `/dashboard/${studentId}?view=expert`, icon: Briefcase },
             { name: "System Settings", href: `/dashboard/${studentId}?view=settings`, icon: Settings },
           ].map((item) => {
             const itemUrl = item.href.split('?')[0];
@@ -128,7 +129,7 @@ function DashboardContent({ children, user }: { children: React.ReactNode, user:
         </header>
 
         {/* Scrollable Viewport */}
-        <main className="flex-1 overflow-auto bg-[radial-gradient(circle_at_top_right,rgba(135,255,200,0.03),transparent)] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <main className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top_right,rgba(135,255,200,0.03),transparent)] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pr-2">
            <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 h-full">
               {children}
            </div>

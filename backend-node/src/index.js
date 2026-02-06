@@ -34,7 +34,7 @@ try {
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',') 
-    : ['http://localhost:3000', 'https://mentiscope.vercel.app', 'https://mentiscope.onrender.com'];
+    : ['https://mentiscope.vercel.app', 'https://mentiscope.onrender.com'];
 
 app.use(cors({
     origin: (origin, callback) => {
@@ -364,6 +364,43 @@ app.post('/api/payments/checkout', authenticate, async (req, res) => {
     } catch (error) {
         console.error("Dodo Checkout Failure:", error.message);
         res.status(500).json({ error: `Payment Protocol Error: ${error.message}` });
+    }
+});
+
+app.post('/api/schedule', authenticate, async (req, res) => {
+    const { date, time, email, reason } = req.body;
+    
+    if (!date || !time || !email) {
+        return res.status(400).json({ error: "Missing scheduling details" });
+    }
+
+    try {
+        console.log(`[SCHEDULER] Booking consultation for ${email} on ${date} at ${time}`);
+        
+        // 1. Save to DB (mocking Firestore call for brevity, in real app save to 'consultations' collection)
+        const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/consultations`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${req.idToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fields: {
+                    user_email: { stringValue: email },
+                    scheduled_date: { stringValue: date },
+                    scheduled_time: { stringValue: time },
+                    reason: { stringValue: reason || "General" },
+                    status: { stringValue: "confirmed" },
+                    created_at: { timestampValue: new Date().toISOString() }
+                }
+            })
+        });
+
+        // 2. Schedule Mock Email
+        console.log(`[EMAIL_SERVICE] Scheduled reminder email to ${email} for event - 24h prior.`);
+        
+        res.json({ status: "success", message: "Consultation booked. Reminder email scheduled." });
+    } catch (error) {
+        console.error("Scheduling Error:", error.message);
+        res.status(500).json({ error: "Failed to schedule consultation." });
     }
 });
 

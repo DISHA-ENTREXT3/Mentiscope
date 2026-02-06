@@ -1,256 +1,143 @@
-# Mentiscope - Understanding Learning Beyond Grades
+# Mentiscope - Standard Growth Protocol
 
-## 🎯 Platform Overview
+![Mentiscope Platform](https://mentiscope.vercel.app/mentiscope-logo.png)
 
-**Mentiscope** is an AI-powered platform that helps parents understand their child's learning, habits, and well-being—so they can support growth before problems appear.
+## 🎯 Protocol Overview
+
+**Mentiscope** is an advanced cognitive mapping platform that helps parents understand their child's learning patterns, habits, and well-being trajectory. By synthesizing behavioral telemetry into actionable insights, Mentiscope enables early support intervention before challenges manifest.
 
 ### Tagline
 
-_Understanding learning beyond grades_
+_Understanding learning beyond grades._
 
 ### Target Audience
 
-Parents of students in grades 1-12 who want to:
+Parents of students in grades 1-12 seeking:
 
-- Understand their child's complete learning profile
-- Identify strengths and growth areas early
-- Receive personalized, actionable guidance
-- Support development across all dimensions (not just academics)
-
----
-
-## 🎨 Brand Identity
-
-### Color Palette (Professional Dark Theme)
-
-**Primary Colors:**
-
-- **Mind Blue** (`#2F5D9F`): Intelligence, trust, stability
-- **Growth Teal** (`#2BA8A0`): Growth, balance, well-being
-
-**Support Colors:**
-
-- **Success Green** (`#3CB371`): Positive signals, strengths
-- **Warning Amber** (`#F2B705`): Areas to watch (not alarming)
-- **Alert Red** (`#E5533D`): Minimal use, only for critical signals
-
-**Neutral Foundation:**
-
-- **Deep Background**: Calm, professional dark theme
-- **Soft White Text**: Easy to read, non-harsh
-- **Soft Gray**: Secondary text, labels
-
-### Design Philosophy
-
-- **Calm, not crowded**: Clean layouts with breathing room
-- **Smart, not intimidating**: Professional but approachable
-- **Supportive, not judgmental**: Positive framing, growth-focused
-- **Premium, not playful**: Serious tool for serious parents
+- **Holistic Profiling**: Beyond academic scores.
+- **Early Signal Detection**: Identifying potential friction points.
+- **Scientific Alignment**: Action plans backed by learning science (Hattie, Dweck).
 
 ---
 
-## 🧠 Core Features
+## 💻 Technical Architecture
 
-### 1. 9-Dimensional Analysis
+The platform operates on a high-availability serverless architecture designed for security, speed, and standard protocol adherence.
 
-Mentiscope analyzes student development across:
+### Frontend Layer (Vercel)
 
-1. Cognitive Development
-2. Academic Progress
-3. **Academic Intelligence** (Learning Strategies, Study Skills, Metacognition)
-4. Neural & Physiological Health
-5. Emotional Regulation
-6. Motivation & Agency
-7. Social & Communication Skills
-8. Empathy & Character
-9. Life Skills & Independence
+- **Core**: Next.js 14+ (React 18), TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui, Lucid React
+- **Motion**: Framer Motion (Glassmorphism & Micro-interactions)
+- **Data Viz**: Recharts (Radar, Area, Bar mapping)
+- **State**: React Hooks + URL-based state management
 
-### 2. Academic Intelligence (New Feature)
+### Backend Layer (Render / Railway)
 
-Provides insights into:
+- **Runtime**: Node.js (Express)
+- **Security**: JWK/JWT Verification (Firebase Admin)
+- **Logic**: Standard Deterministic Synthesis (Non-AI Baseline) & Neural Commerce (Dodo Payments)
+- **API Strategy**: RESTful Arch with CORS strictness
 
-- **Learning Style**: Visual, Auditory, Kinesthetic, or Mixed
-- **Study Effectiveness**: High, Moderate, or Needs Improvement
-- **Growth Mindset Level**: Strong, Developing, or Fixed
-- **Personalized Recommendations**: Specific study strategies
+### Data Persistence (Firebase Firestore)
 
-### 3. Perception Gap Analysis
+- **Primary Store**: NoSQL Document Store
+- **Collections**:
+  - `students`: Core profile data
+  - `assessments`: Raw question/answer logic
+  - `support_requests`: Ticket tracking
+  - `consultations`: Scheduling telemetry
 
-Compares parent and student perspectives to identify:
+### Identity & Access
 
-- Divergence score (0-100%)
-- Key misalignment areas
-- Synergy tips for better alignment
-
-### 4. Predictive Growth Trajectory
-
-Forecasts student readiness at 30 and 90 days based on:
-
-- Current baseline
-- Action plan adherence
-- Primary growth driver identification
-
-### 5. Personalized Action Plans
-
-Age-appropriate strategies categorized as:
-
-- **Immediate Triggers**: Day 1 actions
-- **Habit Protocols**: Week 1+ behaviors
-- **Environment Adjustments**: Spatial and routine tweaks
+- **Auth Provider**: Firebase Authentication (Google/Email)
+- **Protection**: Middleware-gated routes & Token verification
 
 ---
 
-## 🚀 How It Works
+## 🧠 System Schema
 
-1. **Share Your Story**: Complete a thoughtful questionnaire about your child
-2. **AI Analysis**: Our AI analyzes patterns across 9 dimensions
-3. **Discover Insights**: Get clear insights before problems appear
-4. **Personalized Guidance**: Receive age-appropriate strategies
-5. **Support Growth**: Track progress and adjust over time
+### 1. 9-Core Dimensions (The Growth Matrix)
+
+The system evaluates student telemetry across:
+
+1.  **Academic Foundation**
+2.  **Cognitive Agility**
+3.  **Social Synergy**
+4.  **Emotional Resilience**
+5.  **Physical Readiness**
+6.  **Creative Innovation**
+7.  **Focus & Discipline**
+8.  **Global Awareness**
+9.  **Life Skills & Independence**
+
+### 2. Predictive Trajectory
+
+- **Current Baseline**: Real-time score aggregated from 9 dimensions.
+- **30-Day Projection**: Forecast based on habit consistency.
+- **90-Day Vision**: Long-term growth modeling.
+
+### 3. Perception Gap (Synergy)
+
+- Calculates divergence between Parent observation and Student reality.
+- Output: `Misalignment Score` % and `Synergy Action`.
 
 ---
 
-## 💻 Technical Stack
+## 🚀 Deployment & Production
 
-### Frontend
+### Environment Configuration
 
-- **Framework**: Next.js 14 (App Router)
-- **Styling**: Tailwind CSS with custom Mentiscope theme
-- **UI Components**: shadcn/ui
-- **Animations**: Framer Motion
-- **Charts**: Recharts
-- **Auth**: Firebase Authentication
+The application is production-ready. Ensure the following Environment Variables are set in your deployment provider (Vercel/Render):
 
-### Backend
+**Frontend (.env.production)**
 
-- **Framework**: Python FastAPI
-- **Database**: SQLite (development), PostgreSQL (production)
-- **AI**: OpenAI GPT-4 (analysis engine)
-- **ORM**: SQLAlchemy (async)
+```bash
+NEXT_PUBLIC_API_URL=https://mentiscope-api.onrender.com
+NEXT_PUBLIC_BACKEND_URL=https://mentiscope-api.onrender.com
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+```
 
-### Deployment
+**Backend (Render/Railway)**
 
-- **Frontend**: Vercel
-- **Backend**: Railway / Render
-- **Database**: PostgreSQL (production)
-- **Authentication**: Firebase
+```bash
+PORT=5000
+FIREBASE_PROJECT_ID=mentiscope-prod
+DODO_PAYMENTS_API_KEY=...
+DODO_PAYMENTS_ENDPOINT=https://live.dodopayments.com
+ALLOWED_ORIGINS=https://mentiscope.vercel.app
+```
+
+### Build Protocol
+
+1.  **Frontend**: `npm run build` (Next.js Optimization)
+2.  **Backend**: `npm start` (Node.js Server)
 
 ---
 
 ## 🎨 Design System
 
-### Typography
-
-- **Headings**: Bold, clear, professional
-- **Body**: Readable, warm, supportive
-- **Labels**: Uppercase, tracked, subtle
-
-### Components
-
-- **Glass Morphism**: Elevated cards with subtle blur
-- **Gradients**: Mind Blue → Growth Teal
-- **Shadows**: Soft, professional depth
-- **Borders**: Subtle, color-coded by context
-
-### Status Colors
-
-- **Strong**: Success Green
-- **Developing**: Growth Teal
-- **Needs Support**: Warning Amber
-- **Never**: Harsh red labels
+- **Aesthetic**: "Neural Glass" – Dark mode default, transparent layers, neon accents.
+- **Palette**:
+  - Primary: **Mentiscope Green** (`#3CB371`)
+  - Secondary: **Neural Violet** (`#8B5CF6`)
+  - Alert: **Signal Rose** (`#E11D48`)
+  - Background: **Void Black** (`#030712`) with gradients.
 
 ---
 
-## 📊 Sample Insights
+## 🔒 Security & Compliance
 
-### Dashboard Summary
-
-> "Your child is showing wonderful progress across multiple areas! Their curiosity and effort are truly shining through. We've identified some exciting opportunities to make learning even more enjoyable and effective."
-
-### Academic Intelligence
-
-- **Score**: 82/100
-- **Learning Style**: Visual
-- **Study Effectiveness**: Moderate
-- **Growth Mindset**: Strong
-- **Recommendations**:
-  - Introduce visual study aids like mind maps
-  - Practice the Pomodoro Technique
-  - Celebrate effort and progress, not just grades
-  - Create a dedicated, well-lit study space
-
-### Communication Guidance
-
-**Recommended Tone**: Warm, encouraging, and curious
-
-**Ask**: "What did you learn today?"
-**Instead of**: "Did you finish your homework?"
-
-**Encourage**: Effort, persistence, trying new methods
-**Avoid**: Comparing to peers, focusing only on grades
+- **No-Label Policy**: Systems avoid diagnostic labeling, focusing on growth signals.
+- **Data Sovereignty**: Parent-controlled data lifecycle.
+- **Encryption**: TLS 1.3 in transit, AES-256 at rest (via Firebase).
+- **Payment Safety**: Dodo Payments integration for PCI-compliant checkout.
 
 ---
 
-## 🔒 Privacy & Security
+## 📄 License & Attribution
 
-- **No Labels**: Never diagnoses or labels students
-- **Explainable AI**: Clear reasoning for every insight
-- **Parent Control**: Full data access and deletion rights
-- **COPPA Compliant**: Safe for children under 13
-
----
-
-## 📈 Roadmap
-
-### Current (v1.0)
-
-- ✅ 9-dimensional analysis
-- ✅ Academic Intelligence tracking
-- ✅ Perception Gap analysis
-- ✅ Predictive trajectory
-- ✅ Personalized action plans
-- ✅ Grades 1-12 support
-
-### Coming Soon (v1.1)
-
-- 📅 Weekly check-ins
-- 📊 Progress tracking over time
-- 👥 Multi-child support
-- 📱 Mobile app
-- 🏫 School counselor view
-
-### Future (v2.0)
-
-- 🤝 Parent community
-- 📚 Resource library
-- 🎯 Goal setting & tracking
-- 🏆 Achievement celebrations
-
----
-
-## 🌟 What Makes Mentiscope Different
-
-1. **Whole-Child Focus**: Not just academics—9 dimensions of development
-2. **Early Detection**: Identify patterns before they become problems
-3. **Explainable AI**: Understand the "why" behind every insight
-4. **Age-Appropriate**: Tailored for grades 1-12
-5. **Calm & Supportive**: No anxiety, no judgment, just growth
-6. **Actionable**: Specific strategies, not vague advice
-
----
-
-## 📞 Contact & Support
-
-- **Website**: [mentiscope.com](#)
-- **Email**: support@mentiscope.com
-- **Documentation**: [docs.mentiscope.com](#)
-
----
-
-## 📄 License
-
-Proprietary - © 2024 Mentiscope. All rights reserved.
-
----
-
-_Built with ❤️ for parents who want to understand and support their children's complete learning journey._
+© 2026 Mentiscope. All proprietary algorithms and interface designs are reserved.
+_Built for the next generation of growth._
