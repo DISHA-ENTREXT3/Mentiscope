@@ -217,10 +217,13 @@ export default function OnboardingForm() {
 
       // TRIGGER ANALYSIS (Fix: New users were not getting analysis generated)
       try {
-        await triggerAnalysis(student.id);
+        console.log("Triggering analysis for new student...");
+        const analysisResult = await triggerAnalysis(student.id);
+        console.log("Analysis generated successfully:", analysisResult);
       } catch (analysisError) {
-         console.warn("Analysis trigger delayed:", analysisError);
-         // We continue anyway so the user isn't blocked, dashboard handles "no analysis" state
+         console.warn("Analysis generation warning (non-blocking):", analysisError);
+         // We continue anyway - user is not blocked from dashboard
+         // Dashboard will show "Analysis pending..." state
       }
 
       // Move to success or dashboard
