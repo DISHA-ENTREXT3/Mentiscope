@@ -13,10 +13,24 @@ const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
 
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
 
-const dodo = new DodoPayments({
-    apiKey: process.env.DODO_PAYMENTS_API_KEY || 'pd_test_dummy_key',
-    endpoint: process.env.DODO_PAYMENTS_ENDPOINT || 'https://sandbox.dodopayments.com'
-});
+const dodoApiKey = process.env.DODO_PAYMENTS_API_KEY || 'pd_test_dummy_key';
+let dodo;
+
+try {
+    // SDK requires 'bearerToken', not 'apiKey'
+    dodo = new DodoPayments({
+        bearerToken: dodoApiKey, 
+        endpoint: process.env.DODO_PAYMENTS_ENDPOINT || 'https://sandbox.dodopayments.com'
+    });
+} catch (error) {
+    console.warn("Payment Protocol Warning: Neural Commerce module failed to load.", error.message);
+    // Mock for resilience - prevents server crash
+    dodo = {
+        checkouts: {
+            create: async () => { throw new Error("Payment Protocol Inactive: configuration missing."); }
+        }
+    };
+}
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',') 
