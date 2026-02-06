@@ -9,7 +9,12 @@ export const metadata: Metadata = {
   title: "Mentiscope - Understanding Learning Beyond Grades",
   description: "AI-powered platform that helps parents understand their child's learning, habits, and well-being - so they can support growth before problems appear.",
   icons: {
-    icon: "/mentiscope-logo.png",
+    icon: {
+      url: "/mentiscope-logo.png",
+      type: "image/png",
+    },
+    shortcut: "/mentiscope-logo.png",
+    apple: "/mentiscope-logo.png",
   },
 };
 
