@@ -5,17 +5,11 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   if (!db) {
-    console.warn("Firebase DB not initialized - utilizing simulation mode");
-    const mockId = "SIM-" + Math.random().toString(36).substring(7).toUpperCase();
-    return NextResponse.json({
-        id: mockId,
-        name: (await req.json()).name || "Student",
-        grade_level: "Grade 10",
-        parent_id: "parent-id",
-        school_type: "Public",
-        created_at: new Date().toISOString(),
-        readiness_score: 0
-    });
+    console.error("Firebase DB not initialized in production environment.");
+    return NextResponse.json({ 
+      error: "Protocol Initialization Failed", 
+      message: "Neural Database Sync is offline. Check server environment variables."
+    }, { status: 500 });
   }
   try {
     const data = await req.json();

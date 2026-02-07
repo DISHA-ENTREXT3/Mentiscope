@@ -9,9 +9,9 @@ export async function POST(req: NextRequest) {
   }
   try {
     const data = await req.json();
-    const { student_id, assessment_type, data: assessmentData } = data;
+    const { student_id, parent_id, assessment_type, data: assessmentData } = data;
 
-    if (!student_id || !assessment_type || !assessmentData) {
+    if (!student_id || !parent_id || !assessment_type || !assessmentData) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -19,8 +19,10 @@ export async function POST(req: NextRequest) {
     const docData = {
       id: assessmentRef.id,
       student_id,
+      parent_id,
       type: assessment_type,
       data: assessmentData,
+      status: 'pending',
       created_at: new Date().toISOString(),
       analysis_results: {}
     };

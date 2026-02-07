@@ -11,9 +11,18 @@ export async function POST(
   // Lazy-load OpenAI to avoid build-time initialization
   const OpenAI = (await import("openai")).default;
   
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+  
+  if (!apiKey) {
+    return NextResponse.json({ 
+      error: "Neural Engine Offline", 
+      message: "API key missing for AI synthesis." 
+    }, { status: 500 });
+  }
+
   const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: apiKey,
+    baseURL: process.env.OPENROUTER_API_KEY ? "https://openrouter.ai/api/v1" : undefined,
     defaultHeaders: {
       "HTTP-Referer": "https://mentiscope.vercel.app",
       "X-Title": "Mentiscope",
