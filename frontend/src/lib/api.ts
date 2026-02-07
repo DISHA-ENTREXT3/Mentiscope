@@ -117,7 +117,7 @@ if (!API_URL && process.env.NODE_ENV === 'production') {
   console.error("NEXT_PUBLIC_API_URL is not defined in production environment.");
 }
 
-export async function triggerAnalysis(studentId: string): Promise<{ status: string, data?: any, provisional?: boolean }> {
+export async function triggerAnalysis(studentId: string): Promise<{ status: string, data?: Record<string, unknown>, provisional?: boolean }> {
   console.log(`Triggering Neural Analysis for student ${studentId}...`);
   
   if (!auth) {
@@ -170,10 +170,10 @@ export async function triggerAnalysis(studentId: string): Promise<{ status: stri
         } else {
           console.warn("[ANALYSIS] ⚠️ No assessment found for student. Analysis not persisted.");
         }
-      } catch (saveError) {
+      } catch (saveError: unknown) {
         console.error("[ANALYSIS] ❌ Frontend save failed with error:", {
-          code: (saveError as any)?.code,
-          message: (saveError as any)?.message,
+          code: saveError instanceof Error ? (saveError as { code?: string }).code : 'unknown',
+          message: saveError instanceof Error ? saveError.message : 'Unknown error',
           fullError: saveError
         });
         // Don't throw - analysis was generated, just not persisted

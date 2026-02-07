@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use, useCallback } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
   ResponsiveContainer, 
@@ -19,7 +19,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConsultationScheduler } from "@/components/consultation-calendar";
-import { getStudentDashboard, createCheckoutSession, triggerAnalysis } from "@/lib/api";
+import { getStudentDashboard, triggerAnalysis } from "@/lib/api";
 import { Student } from "@/types";
 
 interface Dimension {
@@ -120,6 +120,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
   const resolvedParams = use(params);
   const studentId = resolvedParams.studentId;
   const searchParams = useSearchParams();
+  const router = useRouter();
   const view = searchParams.get('view') || 'overview';
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
@@ -142,7 +143,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
     }
   }, [studentId]);
 
-  const handleTriggerAnalysis = async () => {
+  const handleTriggerAnalysis = useCallback(async () => {
     try {
       setAnalyzing(true);
       await triggerAnalysis(studentId);
@@ -152,22 +153,10 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
     } finally {
       setAnalyzing(false);
     }
-  };
+  }, [studentId, fetchData]);
 
-  const handleUpgrade = async () => {
-    if (!student) return;
-    try {
-      // Pass required parameters: productId, planName, price
-      const { url } = await createCheckoutSession(
-        student.parent_id, 
-        "Premium Plan", 
-        "29.99"
-      );
-      window.location.href = url;
-    } catch (err) {
-      console.error("Upgrade failed:", err);
-      alert("Neural sync protocol failed to initialize.");
-    }
+  const handleUpgrade = () => {
+    router.push("/pricing");
   };
 
   useEffect(() => {
@@ -185,7 +174,7 @@ export default function DashboardPage({ params }: { params: Promise<{ studentId:
         handleTriggerAnalysis();
       }
     }
-  }, [loading, student, analyzing]);
+  }, [loading, student, analyzing, handleTriggerAnalysis]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background space-y-6">

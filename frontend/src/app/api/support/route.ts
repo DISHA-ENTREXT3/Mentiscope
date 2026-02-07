@@ -24,10 +24,16 @@ export async function POST(req: Request) {
       );
     }
 
-    // Forward to Python/Supabase backend
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "https://mentiscope-api.onrender.com"; // Fallback or env var
+    // Forward to Node backend
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     
-    const res = await fetch(`${backendUrl}/support`, {
+    if (!backendUrl && process.env.NODE_ENV === 'production') {
+      console.error("NEXT_PUBLIC_BACKEND_URL is not defined");
+    }
+
+    const targetUrl = `${backendUrl || "https://mentiscope-api.onrender.com"}/api/support`;
+    
+    const res = await fetch(targetUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

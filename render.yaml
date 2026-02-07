@@ -2,7 +2,7 @@
 services:
   - type: web
     name: mentiscope-backend
-    env: node
+    runtime: node
     region: oregon
     plan: free
     buildCommand: cd backend-node && npm install
@@ -22,7 +22,7 @@ services:
         sync: false
       - key: DODO_PAYMENTS_ENDPOINT
         value: https://sandbox.dodopayments.com
-      - key: OPENAI_API_KEY
+      - key: OPENROUTER_API_KEY
         sync: false
       - key: ALLOWED_ORIGINS
-        value: http://localhost:3000,https://mentiscope.vercel.app
+        value: https://mentiscope.vercel.app,https://mentiscope.onrender.com

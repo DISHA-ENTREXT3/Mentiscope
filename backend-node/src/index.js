@@ -5,11 +5,47 @@ const path = require('path');
 const morgan = require('morgan');
 const { createRemoteJWKSet, jwtVerify } = require('jose');
 const { DodoPayments } = require('dodopayments');
+const admin = require('firebase-admin');
 require('dotenv').config();
 
-const app = express();
+// Server Configuration
 const PORT = process.env.PORT || 5000;
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
+
+// Initialize Firebase Admin SDK
+let db;
+try {
+    let serviceAccount = null;
+    
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+    } else if (process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
+        serviceAccount = {
+            projectId: PROJECT_ID,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL
+        };
+    }
+
+    if (serviceAccount) {
+        if (!admin.apps.length) {
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+                projectId: PROJECT_ID
+            });
+        }
+        db = admin.firestore();
+        console.log("Firebase Admin SDK initialized successfully");
+    } else {
+        console.warn("Firebase Admin SDK not initialized - missing service account credentials");
+        db = null;
+    }
+} catch (error) {
+    console.warn("Firebase Admin SDK initialization failed:", error.message);
+    db = null;
+}
+
+const app = express();
 
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'));
 
@@ -36,11 +72,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',') 
     : [
         'https://mentiscope.vercel.app',
-        'https://mentiscope.onrender.com',
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'http://localhost:3001',
-        'http://127.0.0.1:3001'
+        'https://mentiscope.onrender.com'
       ];
 
 app.use(cors({
