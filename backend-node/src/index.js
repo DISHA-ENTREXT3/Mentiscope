@@ -284,6 +284,29 @@ function fromFirestore(doc) {
     return obj;
 }
 
+// --- Plan B: Resilience Helpers ---
+
+/**
+ * Converts a flat JS object to Firestore REST format
+ */
+function toFirestore(obj) {
+    const fields = {};
+    for (const [key, val] of Object.entries(obj)) {
+        if (val === null || val === undefined) continue;
+        if (typeof val === 'string') fields[key] = { stringValue: val };
+        else if (typeof val === 'number') fields[key] = { doubleValue: val };
+        else if (typeof val === 'boolean') fields[key] = { booleanValue: val };
+        else if (typeof val === 'object') {
+            if (Array.isArray(val)) {
+                fields[key] = { arrayValue: { values: val.map(v => (typeof v === 'string' ? { stringValue: v } : { doubleValue: Number(v) })) } };
+            } else {
+                fields[key] = { mapValue: toFirestore(val) };
+            }
+        }
+    }
+    return fields;
+}
+
 // --- Student & Assessment Management ---
 
 /**
@@ -297,28 +320,30 @@ app.post('/api/students', authenticate, async (req, res) => {
         return res.status(400).json({ error: "Missing required fields: name and grade_level" });
     }
 
-    if (!db) {
-        return res.status(500).json({ error: "Neural Database Sync is offline. Check server environment variables." });
-    }
+    const studentData = {
+        name,
+        grade_level,
+        parent_id: userId,
+        school_type: school_type || "Public",
+        created_at: new Date().toISOString(),
+        readiness_score: 0
+    };
 
     try {
-        const studentRef = db.collection("students").doc();
-        const studentData = {
-            id: studentRef.id,
-            name,
-            grade_level,
-            parent_id: userId,
-            school_type: school_type || "Public",
-            created_at: new Date().toISOString(),
-            readiness_score: 0
-        };
-
-        await studentRef.set(studentData);
-        console.log(`[STUDENT] Profile created for ${name} (ID: ${studentRef.id})`);
-        res.json(studentData);
+        if (db) {
+            const studentRef = db.collection("students").doc();
+            await studentRef.set({ id: studentRef.id, ...studentData });
+            console.log(`[STUDENT] Profile created via Admin SDK for ${name}`);
+            return res.json({ id: studentRef.id, ...studentData });
+        } else {
+            console.log(`[PLAN-B] Creating student via user token proxy...`);
+            const result = await firestoreREST('POST', 'students', { fields: toFirestore(studentData) }, req.idToken);
+            const student = fromFirestore(result);
+            return res.json(student);
+        }
     } catch (error) {
         console.error("Student Creation Failed:", error.message);
-        res.status(500).json({ error: "Failed to create student profile." });
+        res.status(500).json({ error: "Failed to create student profile. Protocol sync error." });
     }
 });
 
@@ -333,29 +358,31 @@ app.post('/api/assessments/submit', authenticate, async (req, res) => {
         return res.status(400).json({ error: "Missing required fields: student_id, type, and data" });
     }
 
-    if (!db) {
-        return res.status(500).json({ error: "Neural Database Sync is offline." });
-    }
+    const assessmentData = {
+        student_id,
+        parent_id: userId,
+        type,
+        data,
+        status: "submitted",
+        created_at: new Date().toISOString(),
+        analysis_results: {}
+    };
 
     try {
-        const assessmentRef = db.collection("assessments").doc();
-        const assessmentData = {
-            id: assessmentRef.id,
-            student_id,
-            parent_id: userId,
-            type,
-            data,
-            status: "submitted",
-            created_at: new Date().toISOString(),
-            analysis_results: {}
-        };
-
-        await assessmentRef.set(assessmentData);
-        console.log(`[ASSESSMENT] Submission recorded for student ${student_id}`);
-        res.json({ status: "success", assessment_id: assessmentRef.id });
+        if (db) {
+            const assessmentRef = db.collection("assessments").doc();
+            await assessmentRef.set({ id: assessmentRef.id, ...assessmentData });
+            console.log(`[ASSESSMENT] Submission recorded via Admin SDK for student ${student_id}`);
+            return res.json({ status: "success", assessment_id: assessmentRef.id });
+        } else {
+            console.log(`[PLAN-B] Recording assessment via user token proxy...`);
+            const result = await firestoreREST('POST', 'assessments', { fields: toFirestore(assessmentData) }, req.idToken);
+            const assessment = fromFirestore(result);
+            return res.json({ status: "success", assessment_id: assessment.id });
+        }
     } catch (error) {
         console.error("Assessment Submission Failed:", error.message);
-        res.status(500).json({ error: "Failed to record assessment." });
+        res.status(500).json({ error: "Failed to record assessment. Protocol sync error." });
     }
 });
 
