@@ -293,14 +293,29 @@ function toFirestore(obj) {
     const fields = {};
     for (const [key, val] of Object.entries(obj)) {
         if (val === null || val === undefined) continue;
-        if (typeof val === 'string') fields[key] = { stringValue: val };
-        else if (typeof val === 'number') fields[key] = { doubleValue: val };
-        else if (typeof val === 'boolean') fields[key] = { booleanValue: val };
-        else if (typeof val === 'object') {
+        
+        if (typeof val === 'string') {
+            fields[key] = { stringValue: val };
+        } else if (typeof val === 'number') {
+            fields[key] = { doubleValue: val };
+        } else if (typeof val === 'boolean') {
+            fields[key] = { booleanValue: val };
+        } else if (typeof val === 'object') {
             if (Array.isArray(val)) {
-                fields[key] = { arrayValue: { values: val.map(v => (typeof v === 'string' ? { stringValue: v } : { doubleValue: Number(v) })) } };
+                fields[key] = { 
+                    arrayValue: { 
+                        values: val.map(v => {
+                            if (typeof v === 'string') return { stringValue: v };
+                            if (typeof v === 'number') return { doubleValue: v };
+                            if (typeof v === 'boolean') return { booleanValue: v };
+                            if (typeof v === 'object') return { mapValue: { fields: toFirestore(v) } };
+                            return { stringValue: String(v) };
+                        }) 
+                    } 
+                };
             } else {
-                fields[key] = { mapValue: toFirestore(val) };
+                // IMPORTANT: MapValue must contain a 'fields' property
+                fields[key] = { mapValue: { fields: toFirestore(val) } };
             }
         }
     }
