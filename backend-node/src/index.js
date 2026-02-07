@@ -281,6 +281,81 @@ function fromFirestore(doc) {
     return obj;
 }
 
+// --- Student & Assessment Management ---
+
+/**
+ * Create a new student profile
+ */
+app.post('/api/students', authenticate, async (req, res) => {
+    const { name, grade_level, school_type } = req.body;
+    const userId = req.user.user_id || req.user.sub || req.user.uid;
+
+    if (!name || !grade_level) {
+        return res.status(400).json({ error: "Missing required fields: name and grade_level" });
+    }
+
+    if (!db) {
+        return res.status(500).json({ error: "Neural Database Sync is offline. Check server environment variables." });
+    }
+
+    try {
+        const studentRef = db.collection("students").doc();
+        const studentData = {
+            id: studentRef.id,
+            name,
+            grade_level,
+            parent_id: userId,
+            school_type: school_type || "Public",
+            created_at: new Date().toISOString(),
+            readiness_score: 0
+        };
+
+        await studentRef.set(studentData);
+        console.log(`[STUDENT] Profile created for ${name} (ID: ${studentRef.id})`);
+        res.json(studentData);
+    } catch (error) {
+        console.error("Student Creation Failed:", error.message);
+        res.status(500).json({ error: "Failed to create student profile." });
+    }
+});
+
+/**
+ * Submit a new assessment
+ */
+app.post('/api/assessments/submit', authenticate, async (req, res) => {
+    const { student_id, type, data } = req.body;
+    const userId = req.user.user_id || req.user.sub || req.user.uid;
+
+    if (!student_id || !type || !data) {
+        return res.status(400).json({ error: "Missing required fields: student_id, type, and data" });
+    }
+
+    if (!db) {
+        return res.status(500).json({ error: "Neural Database Sync is offline." });
+    }
+
+    try {
+        const assessmentRef = db.collection("assessments").doc();
+        const assessmentData = {
+            id: assessmentRef.id,
+            student_id,
+            parent_id: userId,
+            type,
+            data,
+            status: "submitted",
+            created_at: new Date().toISOString(),
+            analysis_results: {}
+        };
+
+        await assessmentRef.set(assessmentData);
+        console.log(`[ASSESSMENT] Submission recorded for student ${student_id}`);
+        res.json({ status: "success", assessment_id: assessmentRef.id });
+    } catch (error) {
+        console.error("Assessment Submission Failed:", error.message);
+        res.status(500).json({ error: "Failed to record assessment." });
+    }
+});
+
 app.get('/', (req, res) => res.json({ status: "Mentiscope Protocol Active", mode: "Standard Synthesis" }));
 
 app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {

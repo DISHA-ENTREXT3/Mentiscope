@@ -1,52 +1,57 @@
 import { db, auth } from "./firebase";
-import { collection, addDoc, doc, getDoc, query, where, getDocs, Timestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc, query, where, getDocs, Timestamp, updateDoc, collection } from "firebase/firestore";
 import { Student } from "@/types";
 
 export async function createStudent(data: { name: string, grade_level: string, parent_id: string, school_type?: string }): Promise<Student> {
-  const response = await fetch("/api/students", {
+  if (!auth) throw new Error("Firebase not initialized");
+  const user = auth.currentUser;
+  if (!user) throw new Error("You must be logged in to create a student profile.");
+
+  const idToken = await user.getIdToken();
+
+  const response = await fetch(`${API_URL}/api/students`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${idToken}`
     },
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || "Failed to create student");
+    throw new Error(error.error || "Failed to create student profile.");
   }
 
   return await response.json();
 }
 
 export async function submitAssessment(studentId: string, type: string, data: Record<string, unknown>) {
-  if (!db) {
-    throw new Error("Firestore not initialized");
-  }
-  if (!auth) {
-    throw new Error("Firebase not initialized");
-  }
-  
+  if (!auth) throw new Error("Firebase not initialized");
   const user = auth.currentUser;
-  if (!user) {
-    throw new Error("You must be logged in to submit assessment");
-  }
+  if (!user) throw new Error("You must be logged in to submit an assessment.");
+
+  const idToken = await user.getIdToken();
   
-  const assessmentsRef = collection(db, "assessments");
-  
-  const docRef = await addDoc(assessmentsRef, {
-    student_id: studentId,
-    parent_id: user.uid, // Use current user's UID
-    type,
-    data,
-    created_at: Timestamp.now(),
-    status: "submitted"
+  const response = await fetch(`${API_URL}/api/assessments/submit`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${idToken}`
+    },
+    body: JSON.stringify({
+      student_id: studentId,
+      type,
+      data
+    }),
   });
   
-  return {
-    id: docRef.id,
-    success: true
-  };
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to submit assessment.");
+  }
+
+  return await response.json();
 }
 
 export async function createCheckoutSession(productId: string, planName: string, price: string) {
