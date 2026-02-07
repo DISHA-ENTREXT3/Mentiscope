@@ -466,32 +466,34 @@ app.post('/api/triggerNeuralAnalysis', authenticate, async (req, res) => {
         // Try to store results using Admin SDK for better reliability
         if (analysisGenerated && assessment?.id) {
             try {
-                // Use Firestore Admin SDK if available (more reliable than REST)
-                console.log(`[STORE] Attempting to save analysis to assessment ${assessment.id}`);
-                
-                await db.collection('assessments').doc(assessment.id).update({
-                    analysis_results: analysisResults,
-                    status: 'analyzed',
-                    analyzed_at: admin.firestore.Timestamp.now()
-                });
-                
-                console.log(`[STORE] Analysis successfully saved to Firestore`);
+                if (db) {
+                    // Use Firestore Admin SDK if available (more reliable than REST)
+                    console.log(`[STORE] Attempting to save analysis to assessment ${assessment.id} via Admin SDK`);
+                    await db.collection('assessments').doc(assessment.id).update({
+                        analysis_results: analysisResults,
+                        status: 'analyzed',
+                        analyzed_at: admin.firestore.Timestamp.now()
+                    });
+                    console.log(`[STORE] Analysis successfully saved to Firestore`);
+                } else {
+                    throw new Error("Admin SDK offline");
+                }
             } catch (adminError) {
-                console.warn("Admin SDK store failed, trying REST API:", adminError.message);
+                console.warn(`[STORE-FALLBACK] Admin SDK unavailable (${adminError.message}). Using Plan B REST...`);
                 
-                // Fallback to REST API
+                // Fallback to REST API - MUST include updateMask to prevent document overwrite
+                const mask = "updateMask.fieldPaths=analysis_results&updateMask.fieldPaths=status&updateMask.fieldPaths=analyzed_at";
                 try {
-                    await firestoreREST('PATCH', `assessments/${assessment.id}`, {
+                    await firestoreREST('PATCH', `assessments/${assessment.id}?${mask}`, {
                         fields: {
-                            analysis_results: { stringValue: JSON.stringify(analysisResults) },
+                            analysis_results: { mapValue: { fields: toFirestore(analysisResults) } },
                             status: { stringValue: 'analyzed' },
                             analyzed_at: { timestampValue: new Date().toISOString() }
                         }
                     }, req.idToken);
-                    console.log(`[STORE] Analysis saved via REST API`);
+                    console.log(`[STORE] Analysis saved via REST API with Masking`);
                 } catch (restError) {
-                    console.warn("REST API store also failed:", restError.message);
-                    // Analysis is still generated and returned to user, just not persisted
+                    console.warn("[STORE-ERROR] REST API store also failed:", restError.message);
                 }
             }
         } else if (!analysisGenerated) {
