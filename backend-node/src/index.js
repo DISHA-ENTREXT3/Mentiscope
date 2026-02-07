@@ -13,17 +13,24 @@ const PORT = process.env.PORT || 5000;
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
 
 // Initialize Firebase Admin SDK
-let db;
+let db = null;
 try {
+    const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY_PRIVATE;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL_PRIVATE;
+    const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
     let serviceAccount = null;
     
-    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-    } else if (process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
+    if (serviceAccountKey) {
+        console.log("[INIT] Initializing Firebase Admin via Service Account Key JSON...");
+        serviceAccount = JSON.parse(serviceAccountKey);
+    } else if (privateKey && clientEmail && projectId) {
+        console.log("[INIT] Initializing Firebase Admin via Individual Environment Variables...");
         serviceAccount = {
-            projectId: PROJECT_ID,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL
+            projectId: projectId,
+            privateKey: privateKey.replace(/\\n/g, '\n'),
+            clientEmail: clientEmail
         };
     }
 
@@ -31,17 +38,18 @@ try {
         if (!admin.apps.length) {
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount),
-                projectId: PROJECT_ID
+                projectId: serviceAccount.projectId
             });
         }
         db = admin.firestore();
-        console.log("Firebase Admin SDK initialized successfully");
+        console.log("✅ Firebase Admin SDK initialized successfully for project:", serviceAccount.projectId);
     } else {
-        console.warn("Firebase Admin SDK not initialized - missing service account credentials");
+        console.error("❌ Firebase Admin SDK Setup Error: Missing credentials.");
+        console.log("Checked variables: FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL");
         db = null;
     }
 } catch (error) {
-    console.warn("Firebase Admin SDK initialization failed:", error.message);
+    console.error("❌ Firebase Admin SDK initialization failed:", error.message);
     db = null;
 }
 
@@ -97,11 +105,6 @@ app.use(cors({
     },
     credentials: true
 }));
-
-app.use((req, res, next) => {
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-    next();
-});
 
 app.use(express.json());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
